@@ -244,8 +244,8 @@ def reset_model(model):
     """ reset_model
     Reinitialize model
     Since only convolutional layers contain random parameters in our analysis:
-        -> Loop through all layers
-        -> reinitialize “kernel“ attribute of each convolutional layer
+        - Loop through all layers
+        - reinitialize “kernel“ attribute of each convolutional layer
     """
     session = K.get_session()
     for layer in model.layers:
