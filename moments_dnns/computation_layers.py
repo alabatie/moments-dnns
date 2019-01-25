@@ -31,26 +31,26 @@ class MomentsLayer(Layer):
     Outputs:
         moments_raw
     """
-    def __init__(self, name_moments_raw, compute_moments, bypass_reff):
+    def __init__(self, name_moments_raw, moments_computation,
+                 reff_computation):
         self.name_moments_raw = name_moments_raw
         self.num_moments_raw = len(self.name_moments_raw)
 
-        # -> moments are only computed every delta_moments layers
-        self.compute_moments = compute_moments
-
-        # -> if this is True, bypass reff computation and return -1
-        # -> limits computation bottleneck
-        self.bypass_reff = bypass_reff
+        # - if compute_moments = False, no computation will take place
+        # - if compute_moments = True and compute_reff = False,
+        #     moments will be computed but effective ranks won't be computed
+        # - if compute_moments = True and compute_reff = True,
+        #     both moments and effective ranks will be computed
+        self.moments_computation = moments_computation
+        self.reff_computation = reff_computation
         super(MomentsLayer, self).__init__()
 
     def compute_output_shape(self, input_shape):
         return [(None, ) for _ in range(self.num_moments_raw)] \
-            if self.compute_moments else []
+            if self.moments_computation else []
 
     def compute_reff(self, x):
-        if self.bypass_reff:
-            reff = K.constant(-1)
-        else:
+        if self.reff_computation:
             # fetch feature maps from every input x, dx and spatial position
             feat_maps = K.reshape(x, (-1, K.shape(x)[-1]))
             mean_feat_maps = K.mean(feat_maps, axis=0, keepdims=True)
@@ -67,13 +67,15 @@ class MomentsLayer(Layer):
             elif K.backend() == 'tensorflow':
                 eig_vals, _ = K.tf.self_adjoint_eig(cov_matrix)
             reff = K.sum(eig_vals) / K.max(eig_vals)
+        else:
+            reff = K.constant(-1)
 
         return reff
 
     def call(self, inputs):
         signal, noise, log_noise = inputs
         moments_raw = []  # stores all moments computed
-        if self.compute_moments:
+        if self.moments_computation:
             mean_signal = K.mean(signal, axis=[0, 1, 2], keepdims=True)
             centered_signal = signal - mean_signal
             log_noise = K.mean(log_noise)  # squeeze dimensions

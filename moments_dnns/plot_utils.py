@@ -12,12 +12,18 @@ warnings.filterwarnings("ignore")  # remove matplotlib warnings
 
 def save_figure(name_fig=None):
     """ save_figure
-    Save figure in figures/name_fig + '.pdf' if name_fig is specified
+    Save figure in figures/pdf/name_fig if name_fig contains 'pdf'
+    Save figure in figures/png/name_fig if name_fig contains 'pbg'
 
     """
-    if name_fig is not None:
-        path = os.path.join('figures', name_fig + '.pdf')
-        plt.savefig(path, format='pdf', bbox_inches='tight')
+    if name_fig is None:
+        pass
+    elif 'pdf' in name_fig:
+        path = os.path.join('figures', 'pdf', name_fig)
+        plt.savefig(path, bbox_inches='tight')
+    elif 'png' in name_fig:
+        path = os.path.join('figures', 'png', name_fig)
+        plt.savefig(path, bbox_inches='tight')
 
 
 def set_plot(fig_size, grid_spec, use_tex=False):
@@ -25,14 +31,14 @@ def set_plot(fig_size, grid_spec, use_tex=False):
     Set seaborn style for plots
     Create a figure of size fig_size
     Create a grid specified by grid_spec
-        - (2, 2) for a grid 2 by 2 (i.e. 2 lines, 2 columns)
-        - (1, 2) for a grid 1 by 2 (i.e. 1 line, 2 columns)
+        - (2, 2) for a grid 2 x 2 (i.e. 2 lines, 2 columns)
+        - (1, 2) for a grid 1 x 2 (i.e. 1 line, 2 columns)
 
     Inputs:
         use_latex: whether latex is enabled for legends
     """
     sns.set_style('whitegrid', {'grid.linewidth': 2,
-                                'grid.color': '.93',
+                                'grid.color': '0.93',
                                 'axes.facecolor': '0.97',
                                 'axes.edgecolor': '1'})
 
@@ -40,8 +46,6 @@ def set_plot(fig_size, grid_spec, use_tex=False):
     if use_tex:
         rc('text', usetex=True)
         rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-    else:
-        rc('text', usetex=False)
 
     fig = plt.figure(figsize=fig_size)
     gs = gridspec.GridSpec(grid_spec[0], grid_spec[1])
@@ -50,8 +54,7 @@ def set_plot(fig_size, grid_spec, use_tex=False):
 
 def draw_line(ax, depth, value):
     """ draw_line
-    * Draw thin black dashed line
-    * Used to compare moments curves with as reference
+    Draw thin black dashed line to compare moments curves with a reference
 
     Inputs:
         ax: axis used for plot
@@ -72,7 +75,7 @@ def plot_moments(ax, depth, moments, colors, labels,
         ax: axis used for the plot
         depth: numpy array with depth values
         moments: list of moments
-        colors: list of colors for each moment -> try to get sns color
+        colors: list of colors for each moment (try to get sns color)
         labels: list of labels corresponding to each moment
         linestyles: list of linestyles for each moment
         linewidths: list of linewidths for each moment
@@ -80,7 +83,7 @@ def plot_moments(ax, depth, moments, colors, labels,
         loc: location of the legend (default is 'best')
         bbox_to_anchor: part of the bounding box defined by loc will be at
             position (x, y) (if None, loc simply defines the legend's loc)
-        yrange: range of y (default is None -> matplotlib uses default range)
+        yrange: range of y (default is None and matplotlib uses default range)
         log_scale: log scale or normal scale
     """
     num_moments = len(moments)
@@ -170,7 +173,7 @@ def make_histo(moment):
     First we get the results from np.histogram
     Second we convert the bin edges to centered bins
     Finally we convert the histogram to a density (this last step is
-        however not relevant since we do not show the y-ticks anyways)
+        still not important for our plots since we do not show the y-ticks)
 
     Inputs:
         moment: all moment realizations at given depth

@@ -9,11 +9,11 @@ class ConvLayer(Layer):
     """ ConvLayer
     Convolution step in the simultaneous propagation of signal and noise
     Biases are taken to be zeros as in He initialization
-    In the case of 'zero_padding' boundary conditions:
-        -> we simply use conv2d with padding = 'same'
-    In the cases of 'periodic' and 'symmetric' boundary conditions:
-        -> first we pad signal and noise
-        -> then we use conv2d with padding = 'valid'
+    In the case of boundary conditions 'zero_padding':
+        - simply use conv2d with padding = 'same'
+    In the cases of boundary conditions 'periodic' or 'symmetric':
+        - first pad signal and noise
+        - then use conv2d with padding = 'valid'
     Kernel stored as attribute “kernel“, reinitialized for every submodel
 
     This layer is initialized with:
@@ -23,7 +23,8 @@ class ConvLayer(Layer):
         output_channels: number of output channels
         boundary: boundary conditions
         strides: strides of convolution
-        fac_weigths: default value of 2. as in He initialization
+        fac_weigths: factor of variance of the weights fac_weights / fan_in
+            (default value of 2. as in He initialization)
 
     Inputs:
         [signal, noise]
@@ -73,7 +74,7 @@ class ConvLayer(Layer):
         return x
 
     def pad_symmetric(self, x):
-        # pad with symmetric boundary conditions -> kernel size must be odd
+        # pad with symmetric boundary conditions (kernel size must be odd)
         pad_size = (self.kernel_size - 1) // 2
         x = K.concatenate([x[:, :pad_size, :, :][:, ::-1, :, :], x,
                            x[:, -pad_size:, :, :][:, ::-1, :, :]], axis=1)
@@ -107,9 +108,9 @@ class ConvLayer(Layer):
 class BatchNormLayer(Layer):
     """ BatchNormLayer
     Batch norm step in the simultaneous propagation of signal and noise
-        -> signal is centered and normalized
-        -> noise is normalized
-        -> normalization in each channel is given by sqrt(var_signal + epsilon)
+        - signal is centered and normalized
+        - noise is normalized
+        - normalization in each channel is given by sqrt(var_signal + epsilon)
 
     This layer is initialized with:
         Epsilon fuzz factor
@@ -141,8 +142,8 @@ class BatchNormLayer(Layer):
 class ActivationLayer(Layer):
     """ ActivationLayer
     Activation step in the simultaneous propagation of signal and noise
-        -> signal is subject to relu
-        -> noise is subject to the element-wise tensor multiplication by
+        - signal is subject to relu
+        - noise is subject to element-wise tensor multiplication by
             derivative of relu
 
     Inputs:
@@ -162,7 +163,8 @@ class ActivationLayer(Layer):
 
 class AddLayer(Layer):
     """ AddLayer
-    Addition step of residual and skip-connection branches for resnets
+    Addition step of residual and skip-connection branches
+        in the simultaneous propagation of signal and noise for resnets
 
     Inputs:
         [signal, noise, signal_skip, noise_skip]

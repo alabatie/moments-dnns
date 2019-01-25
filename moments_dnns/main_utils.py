@@ -16,8 +16,6 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
         - boundary conditions must be  'periodic' or 'symmetric' or
             'zero_padding'
         - 'symmetric' boundary conditions only compatible with odd kernel size
-        - batch_size > num_channels if kernel_size = 1 for the eigenvalue
-            decomposition
         - total depth must be a multiple of the number of moment computations
         - 'channels_last' data format is assumed
         - keras backend must be either tensorflow or theano for eigenvalue
@@ -29,7 +27,6 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
     assert (dataset in ['cifar10', 'mnist'])
     assert (boundary in ['periodic', 'symmetric', 'zero_padding'])
     assert not ((boundary == 'symmetric') and (kernel_size % 2 == 0))
-    assert not ((kernel_size == 1) and (batch_size < num_channels))
     assert (total_depth % num_computations == 0)
     assert (K.image_data_format() == 'channels_last')
     assert (K.backend() == 'tensorflow') or (K.backend() == 'theano')
@@ -49,16 +46,16 @@ def get_submodel_constants(original_size, original_strides, total_depth,
       Returns:
         spatial_size: spatial size of images in submodel
         num_submodels: number of submodels which subdivide the total depth
-            -> each time the same keras model is reused as submodel
-            -> each time it is randomly reinitialized
-            -> this leads to exactly the same behaviour as a randomly
+            - each time the same keras model is reused as submodel
+            - each time it is randomly reinitialized
+            - this leads to exactly the same behaviour as a randomly
                 initialized model of depth equal to total_depth
-            -> but it requires less memory
+            - but it requires less memory
         sub_depth: submodel depth
         delta_moments: interval between computation of moments
     """
-    # set num_submodels = 10 if 10 divides num_computations and total_depth
-    # otherwise set num_submodels = num_computations
+    # num_submodels = 10 if 10 divides both num_computations and total_depth,
+    # otherwise num_submodels = num_computations
     num_submodels = 10 if ((num_computations % 10 == 0) and (
         total_depth % 10 == 0)) else num_computations
 
@@ -87,7 +84,7 @@ def get_name_moments(architecture, compute_reff_signal, compute_reff_noise):
         locs: list of locs
         num_moments_raw: number of raw moments
         num_moments: total number of moments
-            (equals number of raw moments times number of locs)
+            (equals number of raw moments x number of locs)
     """
     name_moments_raw = ['nu1_abs_signal', 'nu2_signal', 'mu2_signal',
                         'mu4_signal', 'mu2_noise']
@@ -110,9 +107,9 @@ def load_dataset(dataset, kernel_size):
     """ load_dataset
     cifar images are 32 x 32 x 3
     mnist images are 28 x 28
-        -> mnist images are reshaped to 28 x 28 x 1
+        - mnist images are reshaped to 28 x 28 x 1
     When kernel_size = 1, the fully-connected case is considered
-        -> images are flattened to have spatial size n = 1
+        - images are flattened to have spatial size n = 1
 
     Arguments:
         dataset: 'cifar1O' or 'mnist'
@@ -121,7 +118,7 @@ def load_dataset(dataset, kernel_size):
     Returns:
         signal_original: suitably reshaped original images
         original_strides: strides of first downsampling convolutional layer
-            -> equals 2 except in the fully-connected case
+            - equals 2 except in the fully-connected case
         original_num = number of original images
         original_spatial = spatial size of original images
         original_channels = number of channels in original images

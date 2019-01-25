@@ -5,8 +5,7 @@ from moments_dnns.plot_utils import save_figure
 
 def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
     """ plot_vanilla_histo
-    Plot containing two subplots showsingfor vanilla nets the histograms
-        at 4 depths of
+    Plot containing two subplots showing the histograms at 4 depths of
             (a) log nu2(x^l)
             (b) log mu2(dx^l) = log nu2(dx^l)
 
@@ -34,6 +33,7 @@ def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
         letter_b = '(b)'
         labels = ['l = 50', 'l = 100', ' l = 150', 'l = 200']
 
+    # second-order moments of signal
     ax = fig.add_subplot(gs[0, 0])
     plot_histo(ax=ax,
                moment=moments['nu2_signal_loc3'],
@@ -44,6 +44,7 @@ def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
                xannotation=0.53)
     ax.text(0.02, 0.87, letter_a, fontsize=30, transform=ax.transAxes)
 
+    # second-order moments of noise
     ax = fig.add_subplot(gs[0, 1])
     plot_histo(ax=ax,
                moment=moments['mu2_noise_loc3'],
@@ -188,7 +189,7 @@ def plot_BN_FF(moments, use_tex=True, name_fig=None):
                  yrange=yrange_list[1])
     ax.text(0.02, 0.86, letter_list[1], fontsize=30, transform=ax.transAxes)
 
-    # plot effective ranks of signal and sensitivity
+    # plot effective ranks of noise and signal
     ax = fig.add_subplot(gs[1, 0])
     plot_moments(ax=ax, depth=moments['depth'],
                  moments=[moments['reff_noise_loc4'],
@@ -224,15 +225,15 @@ def plot_BN_FF(moments, use_tex=True, name_fig=None):
 def plot_BN_Res(moments, use_tex=True, name_fig=None):
     """ plot_BN_FF
     Plot containing 4 subplots for batch-normalized resets
-        with the evolution with depth of:
+        with the depth evolution of:
         (a) delta chi^{l,1} decomposed as
             delta_BN chi^{l,1} x delta_phi chi^{l,1}
         (b) chi^l and the power-law fit l^tau
-                -> the power tau is obtained by averaging delta chi^{l,1} over
-                all realizations and all depth l. An alternative would have
-                been to compute a pow-law fit per-realization and then
-                average over all realizations. Note that this would have
-                led to a fit even better.
+                - the power tau is obtained by averaging delta chi^{l,1} over
+                all realizations and all depth l
+                - an alternative would have been to compute a pow-law fit
+                per-realization and then average over all realizations.
+                Note that this would have led to an even better fit.
         (c) The effective ranks: reff(dx^{l,1}), reff(x^{l,1})
         (c) The moments of the pre-activations: mu4(z^{l,1}), nu1(|z^{l,1}|)
             (again since z^{l,1} is standardized after batch norm,
@@ -310,7 +311,7 @@ def plot_BN_Res(moments, use_tex=True, name_fig=None):
                  yrange=yrange_list[1])
     ax.text(0.02, 0.86, letter_list[1], fontsize=30, transform=ax.transAxes)
 
-    # plot effective ranks of signal and sensitivity
+    # plot effective ranks of noise and signal
     ax = fig.add_subplot(gs[1, 0])
     plot_moments(ax=ax, depth=moments['depth'],
                  moments=[moments['reff_noise_loc3'],
