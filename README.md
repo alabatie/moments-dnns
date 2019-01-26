@@ -19,10 +19,10 @@ sudo pip install tensorflow-gpu
 ## Description
 
 The package is built on top of Keras. At the core of the package, four types of custom layers perform the simultaneous propagation of signal and noise:
-* convolutional layers
-* batch normalization layers
-* activation layers
-* addition layers to merge residual and skip-connection branches for resnets
+* Convolutional layers
+* Batch normalization layers
+* Activation layers
+* Addition layers to merge residual and skip-connection branches for resnets
 
 There are also custom layers for the computation of the moments of signal and noise. Performing these computations inside the model rather than outside is much more effective both in terms of speed and memory usage.
 
@@ -78,8 +78,8 @@ This experiment considers in *ReLU batch-normalized feedforward nets* the evolut
 *ReLU batch-normalized feedforward nets are subject to the pathology of exploding sensitivity, i.e. that depth propagation rapidly leads to these networks behaving as pure noise amplifiers*.
 
 The amplification of the normalized sensitivity has two origins:
-1. batch normalization normalizing each channel by signal variance, thereby suppressing directions of high signal variance and amplifying directions of low signal variance
-2. the ReLU nonlinearity
+1. Batch normalization normalizing each channel by signal variance, thereby suppressing directions of high signal variance and amplifying directions of low signal variance
+2. The ReLU nonlinearity
 
 <img src="./figures/png/Fig_4.png" width="800" />
 
@@ -88,8 +88,8 @@ The amplification of the normalized sensitivity has two origins:
 This experiment considers in *ReLU batch-normalized resnets* the evolution with depth of (i) the normalized sensitivity and its increments, (ii) the effective ranks of the signal and noise, (iii) the moments of the signal.
 
 We see a well-behaved evolution with:
-1. the normalized sensitivity has power-law growth
-2. high dimensionality of the signal being preserved
+1. The normalized sensitivity having power-law growth
+2. High dimensionality of the signal being preserved
 
 *Batch-normalized resnets are logarithmic versions of batch-normalized feedforward nets. In particular the whole evolution in Fig. 5 is very similar to the evolution at the very beginning of Fig. 4.*
 
