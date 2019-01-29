@@ -61,7 +61,7 @@ The diffusion happens in log-space since layer composition is a multiplicative p
 ### Fig. 3: Vanilla nets are subject to the pathology of one-dimensional signal
 This experiment considers in *ReLU vanilla nets* the evolution with depth of (i) geometric increments of the normalized sensitivity, (ii) the effective rank of the signal. The normalized sensitivity measures how the neural network degrades the signal-to-noise ratio, while the effective rank measures the effective dimensionality of the signal.
 
-It is shown in the papefr that the normalized sensitivity always increases with depth for ReLU vanilla nets. It is also shown that only two possibilities of evolution are available:
+It is shown in the paper that the normalized sensitivity always increases with depth for ReLU vanilla nets. It is also shown that only two possibilities of evolution are available:
 
 1. The normalized sensitivity explodes
 2. The signal becomes one-dimensional
