@@ -10,26 +10,39 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
     Assert that experiment constants are valid
 
     List of conditions:
-        - kernel_size, num_channels, total_depth, batch_size must be int
+        - kernel_size, num_channels, total_depth, batch_size must be integers
         - architecture must be 'vanilla' or 'BN_FF' or 'BN_Res'
         - dataset must be 'cifar10' or 'mnist'
-        - boundary conditions must be  'periodic' or 'symmetric' or
-            'zero_padding'
-        - 'symmetric' boundary conditions only compatible with odd kernel size
+        - boundary must be  'periodic' or 'symmetric' or 'zero_padding'
+        - 'symmetric' boundary only compatible with odd kernel size
         - total depth must be a multiple of the number of moment computations
-        - 'channels_last' data format is assumed
-        - keras backend must be either tensorflow or theano for eigenvalue
-            decomposition
+        - data format must be 'channels_last'
+        - keras backend must be 'tensorflow' or 'theano'
     """
     assert (type(kernel_size) is int) and (type(num_channels) is int) and \
-        (type(total_depth) is int) and (type(batch_size) is int)
-    assert (architecture in ['vanilla', 'BN_FF', 'BN_Res'])
-    assert (dataset in ['cifar10', 'mnist'])
-    assert (boundary in ['periodic', 'symmetric', 'zero_padding'])
-    assert not ((boundary == 'symmetric') and (kernel_size % 2 == 0))
-    assert (total_depth % num_computations == 0)
-    assert (K.image_data_format() == 'channels_last')
-    assert (K.backend() == 'tensorflow') or (K.backend() == 'theano')
+        (type(total_depth) is int) and (type(batch_size) is int), \
+        "kernel_size, num_channels, total_depth, batch_size must be integers"
+
+    assert (architecture in ['vanilla', 'BN_FF', 'BN_Res']), \
+        "architecture must be 'vanilla' or 'BN_FF' or 'BN_Res'"
+
+    assert (dataset in ['cifar10', 'mnist']), \
+        "dataset must be 'cifar10' or 'mnist'"
+
+    assert (boundary in ['periodic', 'symmetric', 'zero_padding']), \
+        "boundary must be 'periodic' or 'symmetric' or 'zero_padding'"
+
+    assert not ((boundary == 'symmetric') and (kernel_size % 2 == 0)), \
+        "'symmetric' boundary only compatible with odd kernel size"
+
+    assert (total_depth % num_computations == 0), \
+        "total depth must be a multiple of the number of moment computations"
+
+    assert (K.image_data_format() == 'channels_last'), \
+        "data format must be 'channels_last'"
+
+    assert (K.backend() == 'tensorflow') or (K.backend() == 'theano'), \
+        "keras backend must be 'tensorflow' or 'theano'"
 
 
 def get_submodel_constants(original_size, original_strides, total_depth,
