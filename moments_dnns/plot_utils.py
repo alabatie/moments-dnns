@@ -12,17 +12,16 @@ warnings.filterwarnings("ignore")  # remove matplotlib warnings
 
 def save_figure(name_fig=None):
     """ save_figure
-    Save figure in figures/pdf/name_fig if name_fig contains 'pdf'
-    Save figure in figures/png/name_fig if name_fig contains 'pbg'
-
+    Save figure in pdf in figures/pdf/name_fig.pdf
+    Save figure in png in figures/png/name_fig.png
     """
-    if name_fig is None:
-        pass
-    elif 'pdf' in name_fig:
-        path = os.path.join('figures', 'pdf', name_fig)
+    if name_fig is not None:
+        # save pdf
+        path = os.path.join('figures', 'pdf', name_fig + '.pdf')
         plt.savefig(path, bbox_inches='tight')
-    elif 'png' in name_fig:
-        path = os.path.join('figures', 'png', name_fig)
+
+        # save png
+        path = os.path.join('figures', 'png', name_fig + '.png')
         plt.savefig(path, bbox_inches='tight')
 
 

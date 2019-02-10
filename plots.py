@@ -55,7 +55,7 @@ def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
                xannotation=0.46)
     ax.text(0.02, 0.87, letter_b, fontsize=30, transform=ax.transAxes)
 
-    # save figure in figures/name_fig + '.pdf'
+    # save figure
     save_figure(name_fig=name_fig)
 
 
@@ -116,7 +116,7 @@ def plot_vanilla(moments, use_tex=True, name_fig=None):
     draw_line(ax=ax, depth=moments['depth'], value=1)  # draw reference at 1
     ax.text(0.02, 0.87, letter_list[1], fontsize=30, transform=ax.transAxes)
 
-    # save figure in figures/name_fig + '.pdf'
+    # save figure
     save_figure(name_fig=name_fig)
 
 
@@ -145,8 +145,8 @@ def plot_BN_FF(moments, use_tex=True, name_fig=None):
     yrange_list = [[0.99, 1.4], [1.0, 10**17], [0.8, 10000], [0.1, 30000]]
     log_list = [False, True, True, True]
     if use_tex:
-        label_a = ['$\delta^{}_\\text{BN}\chi^l$',
-                   '$\delta_{\phi}\chi^l$',
+        label_a = ['$\delta^{}_\\text{BN} \\hspace{.03em} \chi^l$',
+                   '$\delta_{\phi} \\hspace{.03em} \chi^l$',
                    '$\delta\chi^l$']
         label_b = ['$\chi^l$']
         label_c = ['$r_\\text{eff}(\mathrm{d}\mathbf{x}^l)$',
@@ -218,8 +218,8 @@ def plot_BN_FF(moments, use_tex=True, name_fig=None):
                  yrange=yrange_list[3])
     ax.text(0.02, 0.86, letter_list[3], fontsize=30, transform=ax.transAxes)
 
-    # save figure in figures/name_fig + '.pdf'
-    save_figure(name_fig)
+    # save figure
+    save_figure(name_fig=name_fig)
 
 
 def plot_BN_Res(moments, use_tex=True, name_fig=None):
@@ -253,8 +253,8 @@ def plot_BN_Res(moments, use_tex=True, name_fig=None):
     yrange_list = [[0.99, 1.4], [1., 50], [0.8, 20000], [0., 7.2]]
     log_list = [False, False, True, False]
     if use_tex:
-        label_a = ['$\delta^{}_\\text{BN}\chi^{l,1}$',
-                   '$\delta_{\phi}\chi^{l,1}$',
+        label_a = ['$\delta^{}_\\text{BN} \\hspace{.03em} \chi^{l,1}$',
+                   '$\delta_{\phi} \\hspace{.03em} \chi^{l,1}$',
                    '$\delta\chi^{l,1}$']
         label_b = ['$\chi^l$', '$l^{\\tau}$']
         label_c = ['$r_\\text{eff}(\mathrm{d}\mathbf{x}^{l,1})$',
@@ -340,5 +340,5 @@ def plot_BN_Res(moments, use_tex=True, name_fig=None):
                  yrange=yrange_list[3])
     ax.text(0.02, 0.86, letter_list[3], fontsize=30, transform=ax.transAxes)
 
-    # save figure in figures/name_fig + '.pdf'
+    # save figure
     save_figure(name_fig=name_fig)
