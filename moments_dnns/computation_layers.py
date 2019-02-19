@@ -56,16 +56,16 @@ class MomentsLayer(Layer):
             mean_feat_maps = K.mean(feat_maps, axis=0, keepdims=True)
             centered_feat_maps = feat_maps - mean_feat_maps
 
-            # compute covariance matrix
-            cov_matrix = K.dot(K.transpose(centered_feat_maps),
-                               centered_feat_maps)
-            cov_matrix /= K.cast(K.shape(centered_feat_maps)[0], K.floatx())
-
-            # eigenvalue decomposition
+            # singular value decomposition
             if K.backend() == 'theano':
-                eig_vals, _ = K.theano.tensor.nlinalg.eig(cov_matrix)
+                sing_vals = K.theano.tensor.nlinalg.SVD(centered_feat_maps,
+                                                        compute_uv=False)
             elif K.backend() == 'tensorflow':
-                eig_vals, _ = K.tf.self_adjoint_eig(cov_matrix)
+                sing_vals = K.tf.linalg.svd(centered_feat_maps,
+                                            compute_uv=False)
+
+            # eig. values of covariance matrix are sing. values squared
+            eig_vals = K.pow(sing_vals, 2)
             reff = K.sum(eig_vals) / K.max(eig_vals)
         else:
             reff = K.constant(-1)
