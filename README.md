@@ -39,7 +39,7 @@ A good way to familiarize with the package is to have a look at the notebooks. T
 
 There are two complementary notebooks 
 
-- `Complements on boundary conditions, dataset, epsilon` discusses the influence of boundary conditions of convolutional layers, input dataset and batch normalization fuzz factor
+- `Complements on the effect of width, boundary conditions, dataset, epsilon` discusses the effect of changing the width, boundary conditions of convolutional layers, input dataset and batch normalization fuzz factor
 
 - `Complements on fully-connected networks` discusses the results of experiments equivalent to Fig. 2, 3, 4, 5 for fully-connected networks
 
