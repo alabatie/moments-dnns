@@ -1,6 +1,6 @@
-# Characterizing Well-behaved vs. Pathological Deep Neural Networks
+# Moments-DNNs
 
-Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks”: https://arxiv.org/abs/1811.03087 
+Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks” to appear in ICML 2019: https://arxiv.org/abs/1811.03087 
 
 ## Setup
 This package has been tested with python 2.7 and 3.7.
