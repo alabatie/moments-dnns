@@ -11,7 +11,7 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
 
     List of conditions:
         - kernel_size, num_channels, total_depth, batch_size must be integers
-        - architecture must be 'vanilla' or 'BN_FF' or 'BN_Res'
+        - architecture must be 'vanilla' or 'bn_ff' or 'bn_res'
         - dataset must be 'cifar10' or 'mnist'
         - boundary must be  'periodic' or 'symmetric' or 'zero_padding'
         - 'symmetric' boundary only compatible with odd kernel size
@@ -23,8 +23,8 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
         (type(total_depth) is int) and (type(batch_size) is int), \
         "kernel_size, num_channels, total_depth, batch_size must be integers"
 
-    assert (architecture in ['vanilla', 'BN_FF', 'BN_Res']), \
-        "architecture must be 'vanilla' or 'BN_FF' or 'BN_Res'"
+    assert (architecture in ['vanilla', 'bn_ff', 'bn_res']), \
+        "architecture must be 'vanilla' or 'bn_ff' or 'bn_res'"
 
     assert (dataset in ['cifar10', 'mnist']), \
         "dataset must be 'cifar10' or 'mnist'"
@@ -84,11 +84,11 @@ def get_name_moments(architecture, compute_reff_signal, compute_reff_noise):
       Create lists of raw moments to be computed
       Create list of locs, depending on the architecture
         - vanilla: ['loc1', 'loc2', 'loc3']
-        - BN_FF:   ['loc1', 'loc2', 'loc3', 'loc4']
-        - BN_Res:  ['loc1', 'loc2', 'loc3', 'loc4', 'loc5']
+        - bn_ff:   ['loc1', 'loc2', 'loc3', 'loc4']
+        - bn_res:  ['loc1', 'loc2', 'loc3', 'loc4', 'loc5']
 
       Arguments:
-        architecture: 'vanilla' or 'BN_FF' or 'BN_Res'
+        architecture: 'vanilla' or 'bn_ff' or 'bn_res'
         compute_reff_signal: True or False, whether reff is computed for signal
         compute_reff_noise: True or False, whether reff is computed for noise
 
@@ -109,7 +109,7 @@ def get_name_moments(architecture, compute_reff_signal, compute_reff_noise):
 
     # locs
     num_locs = 3 if (architecture == 'vanilla') else (
-        4 if (architecture == 'BN_FF') else 5)
+        4 if (architecture == 'bn_ff') else 5)
     locs = ['loc' + str(iloc) for iloc in range(1, num_locs + 1)]
     num_moments = num_locs * num_moments_raw
 

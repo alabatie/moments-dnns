@@ -61,7 +61,7 @@ def init_ff_model(spatial_size, kernel_size, num_channels, boundary,
     Moments are computed:
         - every delta_moments layers
         - locs vanilla: 'loc1' -> Conv -> 'loc2' -> Activation -> 'loc3'
-        - locs BN_FF: 'loc1' -> Conv -> 'loc2' -> BN -> 'loc3'
+        - locs bn_ff: 'loc1' -> Conv -> 'loc2' -> BN -> 'loc3'
             -> Activation -> 'loc4'
         - reff is only computed after activation, else it is set to -1
             since it is not needed for the plots
@@ -77,7 +77,7 @@ def init_ff_model(spatial_size, kernel_size, num_channels, boundary,
         name_moments_raw: list of raw moments to be computed
         epsilon = batch normalization fuzz factor
             (only relevant if batch_normalization = True)
-        batch_normalization: True for 'BN_FF', False for 'vanilla'
+        batch_normalization: True for 'bn_ff', False for 'vanilla'
 
     Outputs:
         [signal, noise, log_noise]: serve as inputs to the next submodel

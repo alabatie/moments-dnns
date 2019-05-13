@@ -29,13 +29,13 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
     This function can be:
         - either imported as a standard python function
         - or executed directly as a script, thanks to the fire interface, e.g.
-            'python run_experiment.py --architecture=BN_FF \
+            'python run_experiment.py --architecture=bn_ff \
               --total_depth=200 --kernel_size=3 --num_channels=512 \
               --boundary=periodic --dataset=cifar10 --batch_size=64 \
-              --num_realizations=1000  --name_experiment=BN_FF'
+              --num_realizations=1000  --name_experiment=bn_ff'
 
     Inputs:
-        architecture: 'vanilla' or 'BN_FF' or 'BN_Res'
+        architecture: 'vanilla' or 'bn_ff' or 'bn_res'
         total_depth: total depth of the experiment
         kernel_size: spatial extent of convolutional kernel
         num_channels: number of channels
@@ -51,9 +51,9 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
             or 'zero_padding' (only relevant if kernel_size > 1)
         dataset: 'cifar10' or 'mnist'
         epsilon: batch normalization fuzz factor
-            (only relevant if architecture = 'BN_FF' or 'BN_Res')
+            (only relevant if architecture = 'bn_ff' or 'bn_res')
         res_depth: feedforward depth of residual units
-            (only relevant if architecture='BN_Res')
+            (only relevant if architecture='bn_res')
         num_computations: total number of moment computations
             (there will be a moment computation every
             total depth // num_computations layers)
@@ -115,7 +115,7 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
                                  delta_moments=delta_moments,
                                  name_moments_raw=name_moments_raw,
                                  batch_normalization=False)
-    elif architecture == 'BN_FF':
+    elif architecture == 'bn_ff':
         # batch normalized feedforward net
         submodel = init_ff_model(spatial_size=spatial_size,
                                  kernel_size=kernel_size,
@@ -125,7 +125,7 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
                                  delta_moments=delta_moments,
                                  name_moments_raw=name_moments_raw,
                                  batch_normalization=True)
-    elif architecture == 'BN_Res':
+    elif architecture == 'bn_res':
         # batch normalized resnet
         submodel = init_res_model(spatial_size=spatial_size,
                                   kernel_size=kernel_size,

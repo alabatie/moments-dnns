@@ -120,8 +120,8 @@ def plot_vanilla(moments, use_tex=True, name_fig=None):
     save_figure(name_fig=name_fig)
 
 
-def plot_BN_FF(moments, use_tex=True, name_fig=None):
-    """ plot_BN_FF
+def plot_bn_ff(moments, use_tex=True, name_fig=None):
+    """ plot_bn_ff
     Plot containing 4 subplots for batch-normalized feedforward nets
         with the depth evolution of:
         (a) delta chi^l decomposed as delta_BN chi^l x delta_phi chi^l
@@ -222,8 +222,8 @@ def plot_BN_FF(moments, use_tex=True, name_fig=None):
     save_figure(name_fig=name_fig)
 
 
-def plot_BN_Res(moments, use_tex=True, name_fig=None):
-    """ plot_BN_FF
+def plot_bn_res(moments, use_tex=True, name_fig=None):
+    """ plot_bn_res
     Plot containing 4 subplots for batch-normalized resets
         with the depth evolution of:
         (a) delta chi^{l,1} decomposed as

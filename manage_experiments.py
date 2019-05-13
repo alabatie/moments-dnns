@@ -41,17 +41,17 @@ def prune_experiment(type_plot, name_experiment):
 
     Inputs:
         type_plot: type of plot corresponding to the pruning
-            ('vanilla_histo' or 'vanilla' or 'BN_FF' or 'BN_Res')
+            ('vanilla_histo' or 'vanilla' or 'bn_ff' or 'bn_res')
         name_experiment: name of the experiment
     """
-    assert type_plot in ['vanilla_histo', 'vanilla', 'BN_FF', 'BN_Res']
+    assert type_plot in ['vanilla_histo', 'vanilla', 'bn_ff', 'bn_res']
 
     pruned_list = ['depth']
     if type_plot == 'vanilla_histo':
         pruned_list += ['nu2_signal_loc3', 'mu2_noise_loc3']
     elif type_plot == 'vanilla':
         pruned_list += ['chi_loc3', 'chi_loc1', 'reff_signal_loc3']
-    elif type_plot == 'BN_FF':
+    elif type_plot == 'bn_ff':
         pruned_list += ['chi_loc1', 'chi_loc3', 'chi_loc4',
                         'reff_noise_loc4', 'reff_signal_loc4',
                         'mu4_signal_loc3', 'nu1_abs_signal_loc3']
