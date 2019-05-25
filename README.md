@@ -1,6 +1,6 @@
 # Moments-DNNs
 
-Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks” to appear in 36th International Conference on Machine Learning (arXiv preprint: https://arxiv.org/abs/1811.03087)
+Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks” published in 36th International Conference on Machine Learning (ICML 2019): http://proceedings.mlr.press/v97/labatie19a.html
 
 ## Setup
 This package has been tested with python 2.7 and 3.7.
