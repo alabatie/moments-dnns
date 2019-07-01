@@ -29,9 +29,9 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
     This function can be:
         - either imported as a standard python function
         - or executed directly as a script, thanks to the fire interface, e.g.
-            'python run_experiment.py --architecture=bn_ff \
-              --total_depth=200 --kernel_size=3 --num_channels=512 \
-              --boundary=periodic --dataset=cifar10 --batch_size=64 \
+            'python run_experiment.py --architecture=bn_ff
+              --total_depth=200 --kernel_size=3 --num_channels=512
+              --boundary=periodic --dataset=cifar10 --batch_size=64
               --num_realizations=1000  --name_experiment=bn_ff'
 
     Inputs:
