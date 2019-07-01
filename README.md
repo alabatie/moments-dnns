@@ -3,7 +3,7 @@
 Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks” published in 36th International Conference on Machine Learning (ICML 2019): https://arxiv.org/abs/1811.03087
 
 ## Setup
-This package has been tested with python 2.7 and 3.7.
+This package has been tested with python 2.7, python 3.5 and python 3.7.
 
 First, you need to install all necessary python dependencies:
 ```sh
@@ -18,7 +18,7 @@ sudo pip install tensorflow-gpu
 
 ## Description
 
-The package is built on top of Keras. At the core of the package, four types of custom layers perform the simultaneous propagation of signal and noise:
+The package is built on top of TensorFlow Keras. At the core of the package, four types of custom layers perform the simultaneous propagation of signal and noise:
 * Convolutional layers
 * Batch normalization layers
 * Activation layers

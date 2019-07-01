@@ -1,6 +1,6 @@
-from keras.models import Model
-from keras.layers import Input
-import keras.backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input
+import tensorflow.keras.backend as K
 
 from moments_dnns.propagation_layers import ConvLayer, BatchNormLayer
 from moments_dnns.propagation_layers import ActivationLayer, AddLayer

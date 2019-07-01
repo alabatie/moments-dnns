@@ -1,5 +1,5 @@
-from keras.datasets import cifar10, mnist
-import keras.backend as K
+from tensorflow.keras.datasets import cifar10, mnist
+import tensorflow.keras.backend as K
 
 import numpy as np
 

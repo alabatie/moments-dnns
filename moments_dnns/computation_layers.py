@@ -1,5 +1,6 @@
-from keras.layers import Layer
-import keras.backend as K
+import tensorflow as tf
+from tensorflow.keras.layers import Layer
+import tensorflow.keras.backend as K
 
 
 class MomentsLayer(Layer):
@@ -57,12 +58,7 @@ class MomentsLayer(Layer):
             centered_feat_maps = feat_maps - mean_feat_maps
 
             # singular value decomposition
-            if K.backend() == 'theano':
-                sing_vals = K.theano.tensor.nlinalg.SVD(centered_feat_maps,
-                                                        compute_uv=False)
-            elif K.backend() == 'tensorflow':
-                sing_vals = K.tf.linalg.svd(centered_feat_maps,
-                                            compute_uv=False)
+            sing_vals = tf.linalg.svd(centered_feat_maps, compute_uv=False)
 
             # eig. values of covariance matrix are sing. values squared
             eig_vals = K.pow(sing_vals, 2)
