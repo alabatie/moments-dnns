@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Layer
-from tensorflow.keras.initializers import random_normal
+from tensorflow.compat.v1.keras.initializers import random_normal
 import tensorflow.keras.backend as K
 
 from math import sqrt
@@ -14,7 +14,7 @@ class ConvLayer(Layer):
     In the cases of boundary conditions 'periodic' or 'symmetric':
         - first pad signal and noise
         - then use conv2d with padding = 'valid'
-    Kernel stored as attribute “kernel“, reinitialized for every submodel
+    Kernel stored as attribute 'kernel', reinitialized for every submodel
 
     This layer is initialized with:
         input_size: spatial extent of input

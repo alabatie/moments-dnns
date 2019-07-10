@@ -1,6 +1,7 @@
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
 import tensorflow.keras.backend as K
+from tensorflow.compat.v1.keras.backend import get_session
 
 from moments_dnns.propagation_layers import ConvLayer, BatchNormLayer
 from moments_dnns.propagation_layers import ActivationLayer, AddLayer
@@ -245,9 +246,9 @@ def reset_model(model):
     Reinitialize model
     Since only convolutional layers contain random parameters in our analysis:
         - Loop through all layers
-        - reinitialize “kernel“ attribute of each convolutional layer
+        - reinitialize 'kernel' attribute of each convolutional layer
     """
-    session = K.get_session()
+    session = get_session()
     for layer in model.layers:
         if isinstance(layer, ConvLayer):
             # reinitialize kernel attribute

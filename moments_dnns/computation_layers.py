@@ -97,7 +97,7 @@ class MomentsLayer(Layer):
                     moment_raw = self.compute_reff(noise)
                 else:
                     raise NotImplementedError()
-                moments_raw.append(moment_raw)
+                moments_raw.append(K.reshape(moment_raw, (1, )))
 
         return moments_raw
 
