@@ -1,6 +1,5 @@
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
-import tensorflow.keras.backend as K
 from tensorflow.compat.v1.keras.backend import get_session
 
 from moments_dnns.propagation_layers import ConvLayer, BatchNormLayer
