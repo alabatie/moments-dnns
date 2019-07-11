@@ -7,9 +7,6 @@ from manage_experiments import save_experiment
 from moments_dnns.main_utils import get_name_moments, get_submodel_constants
 from moments_dnns.main_utils import load_dataset, make_asserts
 
-from tensorflow.compat.v1.logging import set_verbosity, ERROR
-set_verbosity(ERROR)  # remove tensorflow deprecated warnings
-
 from moments_dnns.models import init_original_model, reset_model
 from moments_dnns.models import init_ff_model, init_res_model
 

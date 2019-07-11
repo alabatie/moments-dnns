@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
-import tensorflow.keras.backend as K
+from tensorflow.keras import backend as K
 
 
 class MomentsLayer(Layer):

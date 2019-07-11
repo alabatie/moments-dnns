@@ -1,10 +1,13 @@
+import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
-from tensorflow.compat.v1.keras.backend import get_session
 
 from moments_dnns.propagation_layers import ConvLayer, BatchNormLayer
 from moments_dnns.propagation_layers import ActivationLayer, AddLayer
 from moments_dnns.computation_layers import MomentsLayer, RescaleLayer
+
+# remove tf deprecated warnings
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 def init_original_model(original_size, kernel_size,
@@ -247,7 +250,7 @@ def reset_model(model):
         - Loop through all layers
         - reinitialize 'kernel' attribute of each convolutional layer
     """
-    session = get_session()
+    session = tf.compat.v1.keras.backend.get_session()
     for layer in model.layers:
         if isinstance(layer, ConvLayer):
             # reinitialize kernel attribute

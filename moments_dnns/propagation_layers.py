@@ -1,9 +1,11 @@
+import tensorflow as tf
 from tensorflow.keras.layers import Layer
-from tensorflow.compat.v1.keras.initializers import RandomNormal
-import tensorflow.keras.backend as K
+from tensorflow.keras import backend as K
 
 from math import sqrt
 
+# remove tf deprecated warnings
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 class ConvLayer(Layer):
@@ -50,7 +52,8 @@ class ConvLayer(Layer):
 
         fan_in = self.input_channels * self.kernel_size**2
         std_weights = sqrt(fac_weigths / float(fan_in))
-        self.kernel_initializer = RandomNormal(stddev=std_weights)
+        self.kernel_initializer = \
+            tf.compat.v1.keras.initializers.RandomNormal(stddev=std_weights)
         super(ConvLayer, self).__init__()
 
     def build(self, input_shape):
