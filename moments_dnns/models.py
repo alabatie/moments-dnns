@@ -59,7 +59,8 @@ def init_ff_model(spatial_size, kernel_size, num_channels, boundary,
                   epsilon=0.001, batch_normalization=False):
     """ init_ff_model
     Construct feedforward model
-    Moments are computed:
+
+    # Computations
         - every delta_moments layers
         - locs vanilla: 'loc1' -> Conv -> 'loc2' -> Activation -> 'loc3'
         - locs bn_ff: 'loc1' -> Conv -> 'loc2' -> BN -> 'loc3'
@@ -145,12 +146,11 @@ def init_res_model(spatial_size, kernel_size, num_channels, boundary,
                    epsilon=0.001):
     """ init_res_model
     Construct resnet model
-    For each residual unit:
-        - The residual branch goes through res_depth ff layers
-        - The skip-connection branch is the identity
-        - Branches are merged by addition
-    Moments are computed every delta_moments residual units,
-        in the first ff layer of the residual unit and finally at 'loc5'
+    For each residual unit, residual branch goes through res_depth ff layers
+
+    # Computations
+        - every delta_moments residual units, in the first ff layer
+            of the residual unit and finally at 'loc5'
         - locs: 'loc1' -> BN -> 'loc2' -> Activation -> 'loc3'
             -> Conv -> 'loc4' -> ... -> 'loc5' (just after the addition)
         - only compute reff after activation, else bypass and return -1
