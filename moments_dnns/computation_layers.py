@@ -5,31 +5,30 @@ from tensorflow.keras import backend as K
 
 class MomentsLayer(Layer):
     """ MomentsLayer
-    Compute raw moments at given layer and at given 'loc'
-    Computation may include:
-        'nu1_abs_signal': 1st-order non-central moment of absolute signal
+    Compute raw moments at given layer and given 'loc'
+
+    # Computations
+        'nu1_abs_signal': 1st-order non-central moment of abs value of signal
         'nu2_signal': 2nd-order non-central moment of signal
         'nu4_signal': 4th-order non-central moment of signal
         'mu2_signal': 2nd-order central moment of signal
         'mu4_signal': 4th-order central moment of signal
         'mu2_noise': 2nd-order central moment of noise
-            -> also equal second-order non-central moment since the noise
-                is centered
-            -> this moment is computed in log space to avoid overflow
-                inside the model
+            -> also equal 2nd-order non-central moment since noise is centered
+            -> to avoid overflow inside model, it is computed in log space
         'reff_signal': effective rank of signal
         'reff_noise': effective rank of noise
 
-    This layer is initialized with:
-        name_moment_raw: list of raw moments to be computed
-        compute_moments: if True compute raw moments, otherwise return []
-        bypass_reff: if True bypass reff computation (= computation bottleneck)
-            by returning -1
+    # Initialization
+        name_moment_raw (list): names of raw moments to be computed
+        compute_moments (bool): if True compute raw moments, else return []
+        bypass_reff (bool): if True bypass reff computation by returning -1
+            (computational bottleneck)
 
-    Inputs:
+    # Arguments
         [signal, noise, log_noise]
 
-    Outputs:
+    # Returns
         moments_raw
     """
     def __init__(self, name_moments_raw, moments_computation,
@@ -105,13 +104,13 @@ class MomentsLayer(Layer):
 class RescaleLayer(Layer):
     """ RescaleLayer
     Rescale noise to avoid overflow inside model
-    Log of mu2_noise is stored in log_noise
-        (afterwards this value is reused in the computation of moments)
+    Log of mu2_noise stored in log_noise
+        (this value is reused afterwards in the computation of moments)
 
-    Inputs:
+    # Arguments
         [noise, log_noise]
 
-    Outputs:
+    # Returns
         [noise, log_noise]
     """
     def call(self, inputs):

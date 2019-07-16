@@ -9,7 +9,7 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
     """ make_asserts
     Assert that experiment constants are valid
 
-    List of conditions:
+    # Conditions
         - kernel_size, num_channels, total_depth, batch_size must be integers
         - architecture must be 'vanilla' or 'bn_ff' or 'bn_res'
         - dataset must be 'cifar10' or 'mnist'
@@ -17,7 +17,7 @@ def make_asserts(architecture, kernel_size, total_depth, num_computations,
         - 'symmetric' boundary only compatible with odd kernel size
         - total depth must be a multiple of the number of moment computations
         - data format must be 'channels_last'
-        - keras backend must be 'tensorflow' or 'theano'
+        - Keras backend must be 'tensorflow' or 'theano'
     """
     assert (type(kernel_size) is int) and (type(num_channels) is int) and \
         (type(total_depth) is int) and (type(batch_size) is int), \
@@ -50,22 +50,22 @@ def get_submodel_constants(original_size, original_strides, total_depth,
     """ get_submodel_constants
       Compute constants for submodel
 
-      Arguments:
-        original_size: spatial extent of original images
-        original_strides: strides of first downsampling convolutional layer
-        total_depth: total depth of the experiment
-        num_computations: total number of moment computations
+      # Arguments
+        original_size (int): spatial extent of original images
+        original_strides (int): strides of first downsampling conv layer
+        total_depth (int): total depth of the experiment
+        num_computations (int): total number of moment computations
 
-      Returns:
-        spatial_size: spatial size of images in submodel
-        num_submodels: number of submodels which subdivide the total depth
-            - each time the same keras model is reused as submodel
+      # Returns
+        spatial_size (int): spatial size of images in submodel
+        num_submodels (int): number of submodels subdividing the total depth
+            - each time the same Keras model is reused as submodel
             - each time it is randomly reinitialized
             - this leads to exactly the same behaviour as a randomly
                 initialized model of depth equal to total_depth
             - but it requires less memory
-        sub_depth: submodel depth
-        delta_moments: interval between computation of moments
+        sub_depth (int): submodel depth
+        delta_moments (int): interval between computation of moments
     """
     # num_submodels = 10 if 10 divides both num_computations and total_depth,
     # otherwise num_submodels = num_computations
@@ -87,17 +87,17 @@ def get_name_moments(architecture, compute_reff_signal, compute_reff_noise):
         - bn_ff:   ['loc1', 'loc2', 'loc3', 'loc4']
         - bn_res:  ['loc1', 'loc2', 'loc3', 'loc4', 'loc5']
 
-      Arguments:
-        architecture: 'vanilla' or 'bn_ff' or 'bn_res'
-        compute_reff_signal: True or False, whether reff is computed for signal
-        compute_reff_noise: True or False, whether reff is computed for noise
+      # Arguments
+        architecture (str): 'vanilla' or 'bn_ff' or 'bn_res'
+        compute_reff_signal (bool): whether reff is computed for signal
+        compute_reff_noise (bool): whether reff is computed for noise
 
-      Returns:
-        name_moments_raw: list of raw (i.e. without locs) moments
-        locs: list of locs
-        num_moments_raw: number of raw moments
-        num_moments: total number of moments
-            (equals number of raw moments x number of locs)
+      # Returns
+        name_moments_raw (list): names of raw (i.e. without locs) moments
+        locs (list): locs
+        num_moments_raw (int): number of raw moments
+        num_moments (int): total number of moments
+            (equals number of raw moments * number of locs)
     """
     name_moments_raw = ['nu1_abs_signal', 'nu2_signal', 'mu2_signal',
                         'mu4_signal', 'mu2_noise']
@@ -119,22 +119,21 @@ def get_name_moments(architecture, compute_reff_signal, compute_reff_noise):
 def load_dataset(dataset, kernel_size):
     """ load_dataset
     cifar images are 32 x 32 x 3
-    mnist images are 28 x 28
-        - mnist images are reshaped to 28 x 28 x 1
-    When kernel_size = 1, the fully-connected case is considered
-        - images are flattened to have spatial size n = 1
+    mnist images are 28 x 28, and thus must be reshaped to 28 x 28 x 1
+    When kernel_size = 1, images are flattened to have spatial size n = 1
+        (fully-connected case)
 
-    Arguments:
-        dataset: 'cifar1O' or 'mnist'
-        kernel_size: used to detect the fully-connected case
+     # Arguments
+        dataset (str): 'cifar1O' or 'mnist'
+        kernel_size (int): used to treat the fully-connected case
 
-    Returns:
-        signal_original: suitably reshaped original images
-        original_strides: strides of first downsampling convolutional layer
-            - equals 2 except in the fully-connected case
-        original_num = number of original images
-        original_spatial = spatial size of original images
-        original_channels = number of channels in original images
+     # Returns
+        signal_original (numpy array): suitably reshaped original images
+        original_strides (int): strides of first downsampling conv layer
+            (= 2 except in the fully-connected case)
+        original_num (int): number of original images
+        original_spatial (int): spatial size of original images
+        original_channels (int): number of channels in original images
     """
     if dataset == 'cifar10':
         (signal_original, _), (_, _) = cifar10.load_data()

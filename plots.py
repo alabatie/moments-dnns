@@ -9,13 +9,13 @@ def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
             (a) log nu2(x^l)
             (b) log mu2(dx^l) = log nu2(dx^l)
 
-    Inputs:
-        moments: dictionary of moments from the experiment
-        use_tex = True for using latex legend and annotation, otherwise False
-            (If use_tex = True and no LaTeX distribution is found the program
-             will crash, i.e. the option use_tex = False must be set)
-        name_fig = name of figure to save the plot in figures/name_fig.pdf
-            (if left to None, no figure is saved)
+    # Arguments
+        moments (dict): moments from the experiment
+        use_tex (bool): whether latex is used in legends and annotations
+            (If use_tex = True and no LaTeX distribution is found,
+             python will crash)
+        name_fig (str): the figure is saved as figures/name_fig.pdf
+            (if name_fig is left to None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 4.), grid_spec=(1, 2), use_tex=use_tex)
     if use_tex:
@@ -65,13 +65,13 @@ def plot_vanilla(moments, use_tex=True, name_fig=None):
         (a) delta chi^l
         (b) reff(x^l)
 
-    Inputs:
-        moments: dictionary of moments from the experiment
-        use_tex = True for using latex legend and annotation, otherwise False
-            (If use_tex = True and no LaTeX distribution is found the program
-             will crash, i.e. the option use_tex = False must be set)
-        name_fig = name of figure to save the plot in figures/name_fig.pdf
-            (if left to None, no figure is saved)
+    # Arguments
+        moments (dict): moments from the experiment
+        use_tex (bool): whether latex is used in legends and annotations
+            (If use_tex = True and no LaTeX distribution is found,
+             python will crash)
+        name_fig (str): the figure is saved as figures/name_fig.pdf
+            (if name_fig is left to None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 4.), grid_spec=(1, 2), use_tex=use_tex)
 
@@ -122,9 +122,8 @@ def plot_vanilla(moments, use_tex=True, name_fig=None):
 
 def plot_bn_ff(moments, use_tex=True, name_fig=None):
     """ plot_bn_ff
-    Plot containing 4 subplots for batch-normalized feedforward nets
-        with the depth evolution of:
-        (a) delta chi^l decomposed as delta_BN chi^l x delta_phi chi^l
+    Plot containing 4 subplots for batch-normalized feedforward nets:
+        (a) delta chi^l decomposed as delta_BN chi^l * delta_phi chi^l
         (b) chi^l
         (c) The effective ranks: reff(dx^l), reff(x^l)
         (c) The moments of the pre-activations: mu4(z^l), nu1(|z^l|)
@@ -132,13 +131,13 @@ def plot_bn_ff(moments, use_tex=True, name_fig=None):
              see whether z^l is Gaussian with e.g. deviation of mu4(z^l)
              from the Gaussian kurtosis of 3)
 
-    Inputs:
-        moments: dictionary of moments from the experiment
-        use_tex = True for using latex legend and annotation, otherwise False
-            (If use_tex = True and no LaTeX distribution is found the program
-             will crash, i.e. the option use_tex = False must be set)
-        name_fig = name of figure to save the plot in figures/name_fig.pdf
-            (if left to None, no figure is saved)
+    # Arguments
+        moments (dict): moments from the experiment
+        use_tex (bool): whether latex is used in legends and annotations
+            (If use_tex = True and no LaTeX distribution is found,
+             python will crash)
+        name_fig (str): the figure is saved as figures/name_fig.pdf
+            (if name_fig is left to None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 8.5), grid_spec=(2, 2), use_tex=use_tex)
 
@@ -227,26 +226,26 @@ def plot_bn_res(moments, use_tex=True, name_fig=None):
     Plot containing 4 subplots for batch-normalized resets
         with the depth evolution of:
         (a) delta chi^{l,1} decomposed as
-            delta_BN chi^{l,1} x delta_phi chi^{l,1}
+            delta_BN chi^{l,1} * delta_phi chi^{l,1}
         (b) chi^l and the power-law fit l^tau
                 - the power tau is obtained by averaging delta chi^{l,1} over
                 all realizations and all depth l
-                - an alternative would have been to compute a pow-law fit
-                per-realization and then average over all realizations.
-                Note that this would have led to an even better fit.
-        (c) The effective ranks: reff(dx^{l,1}), reff(x^{l,1})
+                - alternatively, we could have computed a pow-law fit
+                per-realization and taken the average over all realizations.
+                This would have led to an even better fit.
+        (c) The effective ranks reff(dx^{l,1}), reff(x^{l,1})
         (c) The moments of the pre-activations: mu4(z^{l,1}), nu1(|z^{l,1}|)
             (again since z^{l,1} is standardized after batch norm,
             this enables to see whether z^{l,1} is Gaussian with e.g.
             deviation of mu4(z^{l,1}) from the Gaussian kurtosis of 3)
 
-    Inputs:
-        moments: dictionary of moments from the experiment
-        use_tex = True for using latex legend and annotation, otherwise False
-            (If use_tex = True and no LaTeX distribution is found the program
-             will crash, i.e. the option use_tex = False must be set)
-        name_fig = name of figure to save the plot in figures/name_fig.pdf
-            (if left to None, no figure is saved)
+    # Arguments
+        moments (dict): moments from the experiment
+        use_tex (bool): whether latex is used in legends and annotations
+            (If use_tex = True and no LaTeX distribution is found,
+             python will crash)
+        name_fig (str): the figure is saved as figures/name_fig.pdf
+            (if name_fig is left to None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 8.5), grid_spec=(2, 2), use_tex=use_tex)
 

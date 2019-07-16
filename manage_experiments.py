@@ -10,12 +10,12 @@ def merge_experiments(name_experiments, name_merged):
         - All moment names coincide
         - Depth values coincide
 
-    Inputs:
-        name_experiments: list of names of experiments to merge
-        name_merged: name of the merged experiments
+    # Arguments
+        name_experiments (list): names of experiments to merge
+        name_merged (str): name of the merged experiments
 
-    Outputs:
-        moments: moments of the merged experiments
+    # Returns
+        moments (dict): moments of the merged experiments
     """
     moments = {}
     for iexperiment, name_experiment in enumerate(name_experiments):
@@ -36,13 +36,13 @@ def merge_experiments(name_experiments, name_merged):
 
 def prune_experiment(type_plot, name_experiment):
     """ prune_experiment
-    Only keep moments relevant for the plots
+    Only keep moments relevant for a given plot
     This function is used to limit disk space taken by .npy results
 
-    Inputs:
-        type_plot: type of plot corresponding to the pruning
+    # Arguments
+        type_plot (str): type of plot corresponding to the pruning
             ('vanilla_histo' or 'vanilla' or 'bn_ff' or 'bn_res')
-        name_experiment: name of the experiment
+        name_experiment (str): name of the experiment
     """
     assert type_plot in ['vanilla_histo', 'vanilla', 'bn_ff', 'bn_res']
 
@@ -55,7 +55,7 @@ def prune_experiment(type_plot, name_experiment):
         pruned_list += ['chi_loc1', 'chi_loc3', 'chi_loc4',
                         'reff_noise_loc4', 'reff_signal_loc4',
                         'mu4_signal_loc3', 'nu1_abs_signal_loc3']
-    else:
+    elif type_plot == 'bn_res':
         pruned_list += ['chi_loc4', 'chi_loc2', 'chi_loc1', 'chi_loc5',
                         'reff_noise_loc3', 'reff_signal_loc3',
                         'mu4_signal_loc2', 'nu1_abs_signal_loc2']
@@ -74,9 +74,9 @@ def save_experiment(moments, name_experiment):
     Save moments in directory npy/name_experiment/
     If directory already exists, it is deleted and created again
 
-    Inputs:
-        moments: moments of the experiment
-        name_experiment: name of the experiment
+    # Arguments
+        moments (dict): moments of the experiment
+        name_experiment (str): name of the experiment
     """
     name_dir = os.path.join('npy', name_experiment)
     if os.path.isdir(name_dir):
@@ -93,11 +93,11 @@ def load_experiment(name_experiment):
     """ load_experiment
     Load moments from directory: npy/name_experiment/
 
-    Inputs:
-        name_experiment: name of the experiment
+    # Arguments
+        name_experiment (str): name of the experiment
 
-    Outputs:
-        moments: moments of the experiment
+    # Returns
+        moments (dict): moments of the experiment
     """
     name_dir = os.path.join('npy', name_experiment)
     assert os.path.isdir(name_dir)

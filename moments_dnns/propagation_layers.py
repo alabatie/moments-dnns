@@ -12,27 +12,26 @@ class ConvLayer(Layer):
     """ ConvLayer
     Convolution step in the simultaneous propagation of signal and noise
     Biases are taken to be zeros as in He initialization
-    In the case of boundary conditions 'zero_padding':
-        - simply use conv2d with padding = 'same'
-    In the cases of boundary conditions 'periodic' or 'symmetric':
-        - first pad signal and noise
-        - then use conv2d with padding = 'valid'
-    Kernel stored as attribute 'kernel', reinitialized for every submodel
+    When boundary cond. are 'zero_padding', use conv2d with padding = 'same'
+    When boundary cond. are 'periodic' or 'symmetric':
+        -> first pad signal and noise
+        -> then use conv2d with padding = 'valid'
+    Kernel is stored as attribute 'kernel' and reinitialized for every submodel
 
-    This layer is initialized with:
-        input_size: spatial extent of input
-        kernel_size: spatial extent of convolutional kernel
-        input_channels: number of inputs channels
-        output_channels: number of output channels
-        boundary: boundary conditions
-        strides: strides of convolution
-        fac_weigths: factor of variance of the weights fac_weights / fan_in
-            (default value of 2. as in He initialization)
+    # Initialization
+        input_size (int): spatial extent of input
+        kernel_size (int): spatial extent of convolutional kernel
+        input_channels (int): number of inputs channels
+        output_channels (int): number of output channels
+        boundary (str): boundary conditions
+        strides (int): strides of convolution
+        fac_weigths (float): variance of weights equal to fac_weights / fan_in
+            (default value of fac_weights is 2. as in He initialization)
 
-    Inputs:
+    # Arguments
         [signal, noise]
 
-    Outputs:
+    # Returns
         [signal, noise]
     """
     def __init__(self, input_size, kernel_size, input_channels,
@@ -112,17 +111,17 @@ class ConvLayer(Layer):
 class BatchNormLayer(Layer):
     """ BatchNormLayer
     Batch norm step in the simultaneous propagation of signal and noise
-        - signal is centered and normalized
-        - noise is normalized
-        - normalization in each channel is given by sqrt(var_signal + epsilon)
+        -> signal is centered and normalized
+        -> noise is normalized
+        -> each channel is normalized by sqrt(var_signal + epsilon)
 
-    This layer is initialized with:
-        Epsilon fuzz factor
+    # Initialization
+        epsilon (float): batch norm fuzz factor
 
-    Inputs:
+    # Arguments
         [signal, noise]
 
-    Outputs:
+    # Returns
         [signal, noise]
     """
     def __init__(self, epsilon):
@@ -146,14 +145,13 @@ class BatchNormLayer(Layer):
 class ActivationLayer(Layer):
     """ ActivationLayer
     Activation step in the simultaneous propagation of signal and noise
-        - signal is subject to relu
-        - noise is subject to element-wise tensor multiplication by
-            derivative of relu
+        - signal goes through relu
+        - noise goes through element-wise multiplication by relu derivative
 
-    Inputs:
+    # Arguments
         [signal, noise]
 
-    Outputs:
+    # Returns
         [signal, noise]
     """
     def call(self, inputs):
@@ -167,13 +165,13 @@ class ActivationLayer(Layer):
 
 class AddLayer(Layer):
     """ AddLayer
-    Addition step of residual and skip-connection branches
-        in the simultaneous propagation of signal and noise for resnets
+    Addition step in the simultaneous propagation of signal and noise
+        (only used in resnets)
 
-    Inputs:
+    # Arguments
         [signal, noise, signal_skip, noise_skip]
 
-    Outputs:
+    # Returns
         [signal, noise]
     """
     def compute_output_shape(self, input_shape):

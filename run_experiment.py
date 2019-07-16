@@ -20,52 +20,52 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
                    compute_reff_signal=True, compute_reff_noise=True):
     """ run_experiment
     Entry point of the code to run experiments
-    Steps:
+
+    # Steps
         - Assert that experiment constants are valid
         - Load data
         - Get name of moments to be computed
-        - Initialize keras models
-        - For each realization, propagate noise and signal and fetch moments
+        - Initialize Keras models
+        - For each realization, propagate noise and signal, fetch moments
         - Save moments in results/name_experiment/ as .npy files
-    This function can be:
-        - either imported as a standard python function
-        - or executed directly as a script, thanks to the fire interface, e.g.
-            'python run_experiment.py --architecture=bn_ff
+
+    # Usage
+        - This function can be imported as a standard python function
+        - Or execute directly as a script with the fire interface, e.g.
+            ```python run_experiment.py --architecture=bn_ff
               --total_depth=200 --kernel_size=3 --num_channels=512
               --boundary=periodic --dataset=cifar10 --batch_size=64
-              --num_realizations=1000  --name_experiment=bn_ff'
+              --num_realizations=1000  --name_experiment=bn_ff```
 
-    Inputs:
-        architecture: 'vanilla' or 'bn_ff' or 'bn_res'
-        total_depth: total depth of the experiment
-        kernel_size: spatial extent of convolutional kernel
-        num_channels: number of channels
-        batch_size: number of images considered for each realization
+    # Arguments
+        architecture (str): 'vanilla' or 'bn_ff' or 'bn_res'
+        total_depth (int): total depth of the experiment
+        kernel_size (int): spatial extent of convolutional kernel
+        num_channels (int): number of channels
+        batch_size (int): number of images considered for each realization
             (in other words, 1 realization = 1 batch)
-        num_realizations: number of realizations in the experiment,
+        num_realizations (int): number of realizations in the experiment,
             i.e. number of randomly initialized simultaneous propagation of
             signal on noise with computation of moments
-        name_experiment: name of the experiment = name of directory
-            to save results (if a directory already exists, it will be
-            deleted and created again)
-        boundary: boundary condition among 'periodic' or 'symmetric'
+        name_experiment (str): name of experiment / directory to save results
+            (if directory already exists, it will be deleted and created again)
+        boundary (str): boundary condition among 'periodic' or 'symmetric'
             or 'zero_padding' (only relevant if kernel_size > 1)
-        dataset: 'cifar10' or 'mnist'
-        epsilon: batch normalization fuzz factor
+        dataset (str): 'cifar10' or 'mnist'
+        epsilon (float): batch normalization fuzz factor
             (only relevant if architecture = 'bn_ff' or 'bn_res')
-        res_depth: feedforward depth of residual units
-            (only relevant if architecture='bn_res')
-        num_computations: total number of moment computations
-            (there will be a moment computation every
-            total depth // num_computations layers)
-        numpy_seed:
+        res_depth (int): feedforward depth of residual units
+            (only relevant if architecture = 'bn_res')
+        num_computations (int): total number of moment computations
+            (moment computation every total depth // num_computations layers)
+        numpy_seed (int):
             - seed to reproduce image selection
-            - note that it does not lead to fully deterministic behaviour
-                either, but this is not a problem since we are only concerned
+            - it does not lead to fully deterministic behaviour either,
+                but this is not a problem since we are only concerned
                 in expectations and 1-sigma intervals
-        verbose: whether parameter values are printed
-        compute_reff_signal: whether reff is computed for the signal
-        compute_reff_noise: whether reff is computed for the noise
+        verbose (bool): whether parameter values are printed
+        compute_reff_signal (bool): whether reff is computed for the signal
+        compute_reff_noise (bool): whether reff is computed for the noise
     """
     if verbose:
         # print parameter names and values

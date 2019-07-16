@@ -20,22 +20,20 @@ def init_original_model(original_size, kernel_size,
             original_size // original_strides,
             num_channels)
     The convolution is initialized with 'LeCun normal' since no ReLU follows
-    In the case kernel_size > 1, original_strides = 2 in order to reduce
-        the spatial extent
-    In the case kernel_size = 1, original_strides = 1 since images already
+    When kernel_size > 1, original_strides = 2 to reduce spatial extent
+    When kernel_size = 1, original_strides = 1 since images already
         have spatial size equal to 1
 
-    Inputs:
-        original_size: spatial extent of original images
-        kernel_size: spatial extent of convolutional kernel
-        original_channels: number of channels in original images
-        num_channels: number of channels in the propagated tensors
-        boundary: boundary conditions
-        original_strides: strides of convolution
+    # Arguments
+        original_size (int): spatial extent of original images
+        kernel_size (int): spatial extent of convolutional kernel
+        original_channels (int): number of channels in original images
+        num_channels (int): number of channels in the propagated tensors
+        boundary (str): boundary conditions
+        original_strides (int): strides of convolution
 
-    Outputs:
-        [signal, noise] fed later as inputs to the main submodels of the
-            simultaneous propagation
+    # Returns
+        [signal, noise]
     """
     original_shape = (original_size, original_size, original_channels)
     signal = Input(shape=original_shape)
@@ -69,22 +67,22 @@ def init_ff_model(spatial_size, kernel_size, num_channels, boundary,
         - reff is only computed after activation, else it is set to -1
             since it is not needed for the plots
 
-    Inputs:
-        spatial_size: spatial extent of propagated tensors
-        kernel_size: spatial extent of convolutional kernel
-        num_channels: number of channels in the propagated tensors
-        boundary: boundary conditions 'periodic' or 'symmetric'
+    # Arguments
+        spatial_size (int): spatial extent of propagated tensors
+        kernel_size (int): spatial extent of convolutional kernel
+        num_channels (int): number of channels in the propagated tensors
+        boundary (str): boundary conditions 'periodic' or 'symmetric'
             or 'zero_padding'
-        sub_depth: number of layers inside submodel
-        delta_moments: interval between computation of moments
-        name_moments_raw: list of raw moments to be computed
-        epsilon = batch normalization fuzz factor
+        sub_depth (int): number of layers inside submodel
+        delta_moments (int): interval between computation of moments
+        name_moments_raw (list): names of raw moments to be computed
+        epsilon (float): batch normalization fuzz factor
             (only relevant if batch_normalization = True)
-        batch_normalization: True for 'bn_ff', False for 'vanilla'
+        batch_normalization (bool): True for 'bn_ff', False for 'vanilla'
 
-    Outputs:
-        [signal, noise, log_noise]: serve as inputs to the next submodel
-        moments_raw: all moments computed in this submodel
+    # Returns
+        [signal, noise, log_noise]
+        moments_raw (list): all moments computed in this submodel
     """
     input_shape = (spatial_size, spatial_size, num_channels)
     signal = Input(shape=input_shape)
@@ -148,31 +146,29 @@ def init_res_model(spatial_size, kernel_size, num_channels, boundary,
     """ init_res_model
     Construct resnet model
     For each residual unit:
-        - The residual branch goes through a number of feedforward layers
-            equal to res_depth
+        - The residual branch goes through res_depth ff layers
         - The skip-connection branch is the identity
-        - Both branches are merged by addition
-    Moments:
-        - computed every delta_moments residual units, in the first feedforward
-            layer of the residual unit and finally at 'loc5' after the addition
-        - locations: 'loc1' -> BN -> 'loc2' -> Activation -> 'loc3'
+        - Branches are merged by addition
+    Moments are computed every delta_moments residual units,
+        in the first ff layer of the residual unit and finally at 'loc5'
+        - locs: 'loc1' -> BN -> 'loc2' -> Activation -> 'loc3'
             -> Conv -> 'loc4' -> ... -> 'loc5' (just after the addition)
         - only compute reff after activation, else bypass and return -1
-        - rescale noise only when branches are merged
+        - rescale noise when branches are merged
 
-    Inputs:
-        spatial_size: spatial extent of propagated tensors
-        kernel_size: spatial extent of convolutional kernel
-        num_channels: number of channels
-        boundary: boundary conditions
-        sub_depth: number of residual units in the submodel
-        res_depth: total feedforward depth in each residual unit
-        delta_moments: interval between computation of moments
-        name_moments_raw: list of raw moments to be computed
-        epsilon: fuzz factor of batch normalization
+    # Arguments
+        spatial_size (int): spatial extent of propagated tensors
+        kernel_size (int): spatial extent of convolutional kernel
+        num_channels (int): number of channels
+        boundary (str): boundary conditions
+        sub_depth (int): number of residual units in the submodel
+        res_depth (int): total ff depth in each residual unit
+        delta_moments (int): interval between computation of moments
+        name_moments_raw (list): names of raw moments to be computed
+        epsilon (float): fuzz factor of batch normalization
 
-    Outputs:
-        [signal, noise, log_noise]: serve as inputs to next submodel
+    # Returns
+        [signal, noise, log_noise]
         moments_raw: all moments computed in this submodel
     """
     input_shape = (spatial_size, spatial_size, num_channels)
