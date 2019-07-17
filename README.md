@@ -10,7 +10,7 @@ First, you need to install all necessary python dependencies:
 cd moments-dnns
 sudo pip install -r requirements.txt   # optionally: sudo pip3 install -r requirements.txt
 ```
-To run reasonably large experiments with convolutional networks, you will need to have tensorflow-gpu installed, e.g. with
+To run reasonably large experiments with convolutional networks, you will need to have tensorflow-gpu installed, e.g.
 ```sh
 sudo pip install tensorflow-gpu
 ```
@@ -24,24 +24,25 @@ The package is built on top of TensorFlow Keras. At the core of the package, fou
 * Activation layers
 * Addition layers to merge residual and skip-connection branches for resnets
 
-There are also custom layers for the computation of the moments of signal and noise. Performing these computations inside the model rather than outside is much more effective both in terms of speed and memory usage.
+Custom layers are also introduced for the computation of the moments of signal and noise. Performing these computations inside the model rather than outside is much more effective both in terms of speed and memory usage.
 
-The entry-point of the package is `run_experiment.py`. This file contains the function `run_experiment()` which runs an experiment with fixed parameters for a given number of realizations. The results of the experiment are saved as numpy arrays in the folder `npy/name_experiment/` with the parameter `name_experiment` set at the invocation of `run_experiment()`.
+The entry-point of the package is `run_experiments.py`. This file contains the function `run_experiment()` which runs an experiment with fixed parameters for a given number of realizations. The results of the experiment are saved as numpy arrays in the folder `npy/name_experiment/` with the parameter `name_experiment` set at the invocation of `run_experiment()`.
 
-For an experiment with 1,000 realizations .npy files typically occupy a space of a few MB. This space can be optionally reduced by calling the function `prune_experiment()` in the file `manage_experiments.py`. This function enables to only retain the moments relevant for a specific type of plot.
+For an experiment with 1,000 realizations, `.npy` files typically occupy a space of a few MB. This space can be optionally reduced by calling the function `prune_experiment()` in the file `manage_experiments.py`. This function enables to only retain the moments relevant for a specific type of plot.
+
 
 The file `plots.py` provides function to plot the results of the experiments in situations equivalent to Fig. 2, 3, 4, 5 of the paper.
 
 
 ## Notebooks
 
-A good way to familiarize with the package is to have a look at the notebooks. The *main notebook* `Reproducing Fig. 2, 3, 4, 5` shows the function calls as well as the results from Fig. 2, 3, 4, 5 of the paper.
+Notebooks provide a easy way of familiarizing with the package. The main notebook [Reproducing Fig. 2, 3, 4, 5.ipynb](https://github.com/alabatie/moments-dnns/blob/master/Reproducing%20Fig.%202%2C%203%2C%204%2C%205.ipynb) shows the function calls to reproduce the results from Fig. 2, 3, 4, 5 from the paper.
 
 There are two complementary notebooks 
 
-- `Complements on width, boundary conditions, dataset, epsilon` discusses the effect of changing the width, boundary conditions of convolutional layers, input dataset and batch normalization fuzz factor
+- [Complements on width, boundary conditions, dataset, epsilon.ipynb](https://github.com/alabatie/moments-dnns/blob/master/Complements%20on%20width%2C%20boundary%20conditions%2C%20dataset%2C%20epsilon.ipynb) discusses the effect of changing the width, boundary conditions of convolutional layers, input dataset and batch normalization fuzz factor
 
-- `Complements on fully-connected networks` discusses the results of experiments equivalent to Fig. 2, 3, 4, 5 for fully-connected networks
+- [Complements on fully-connected networks.ipynb](https://github.com/alabatie/moments-dnns/blob/master/Complements%20on%20fully-connected%20networks.ipynb) discusses experiments equivalent to Fig. 2, 3, 4, 5 for fully-connected networks
 
 These complementary notebooks confirm the results of the paper and provide additional insights and examples of usage of the function `run_experiment()`.
 
