@@ -51,13 +51,13 @@ class MomentsLayer(Layer):
 
     def compute_reff(self, x):
         if self.reff_computation:
-            # fetch feature maps from every input x, dx and spatial position
-            feat_maps = K.reshape(x, (-1, K.shape(x)[-1]))
-            mean_feat_maps = K.mean(feat_maps, axis=0, keepdims=True)
-            centered_feat_maps = feat_maps - mean_feat_maps
+            # fetch feature vectors from every input x, dx and spatial position
+            feat_vecs = K.reshape(x, (-1, K.shape(x)[-1]))
+            mean_feat_vecs = K.mean(feat_vecs, axis=0, keepdims=True)
+            centered_feat_vecs = feat_vecs - mean_feat_vecs
 
             # singular value decomposition
-            sing_vals = tf.linalg.svd(centered_feat_maps, compute_uv=False)
+            sing_vals = tf.linalg.svd(centered_feat_vecs, compute_uv=False)
 
             # eig. values of covariance matrix are sing. values squared
             eig_vals = K.pow(sing_vals, 2)
