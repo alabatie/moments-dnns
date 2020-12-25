@@ -3,18 +3,13 @@
 Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks” published in 36th International Conference on Machine Learning (ICML 2019): https://arxiv.org/abs/1811.03087
 
 ## Setup
-This package has been tested with python 2.7, python 3.5 and python 3.7.
+This package has been tested with python 2.7, python 3.5 and python 3.7. 
 
-First, you need to install all necessary python dependencies:
+For installing all necessary python dependencies:
 ```sh
 cd moments-dnns
 sudo pip install -r requirements.txt   # optionally: sudo pip3 install -r requirements.txt
 ```
-To run reasonably large experiments with convolutional networks, you will need to have tensorflow-gpu installed, e.g.
-```sh
-sudo pip install tensorflow-gpu
-```
-
 
 ## Description
 

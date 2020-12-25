@@ -1,3 +1,6 @@
+from silence_tensorflow import silence_tensorflow
+silence_tensorflow()
+
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input
@@ -6,8 +9,6 @@ from moments_dnns.propagation_layers import ConvLayer, BatchNormLayer
 from moments_dnns.propagation_layers import ActivationLayer, AddLayer
 from moments_dnns.computation_layers import MomentsLayer, RescaleLayer
 
-# remove tf deprecated warnings
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 def init_original_model(original_size, kernel_size,
@@ -246,8 +247,10 @@ def reset_model(model):
         - Loop through all layers
         - reinitialize 'kernel' attribute of each convolutional layer
     """
-    session = tf.compat.v1.keras.backend.get_session()
     for layer in model.layers:
-        if isinstance(layer, ConvLayer):
-            # reinitialize kernel attribute
-            layer.kernel.initializer.run(session=session)
+        for k, initializer in layer.__dict__.items():
+            if "initializer" not in k:
+                continue
+            # find the corresponding variable
+            var = getattr(layer, k.replace("_initializer", ""))
+            var.assign(initializer(var.shape, var.dtype))
