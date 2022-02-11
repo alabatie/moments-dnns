@@ -5,7 +5,7 @@ grpcio==1.18.0
 h5py==2.9.0
 Markdown==3.0.1
 numpy==1.16.0
-protobuf==3.14
+protobuf==3.15.0
 pyyaml>=4.2b1
 scipy==1.2.0
 six==1.12.0
