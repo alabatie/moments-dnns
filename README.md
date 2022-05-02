@@ -8,7 +8,7 @@ This package has been tested with python 2.7, python 3.5 and python 3.7.
 For installing all necessary python dependencies:
 ```sh
 cd moments-dnns
-sudo pip install -r requirements.txt   # optionally: sudo pip3 install -r requirements.txt
+pip install -r requirements.txt   # or: pip3 install -r requirements.txt
 ```
 
 ## Description
