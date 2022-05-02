@@ -5,10 +5,9 @@ Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural N
 ## Setup
 This package has been tested with python 2.7, python 3.5 and python 3.7. 
 
-For installing all necessary python dependencies:
+For installing the package:
 ```sh
-cd moments-dnns
-pip install -r requirements.txt   # or: pip3 install -r requirements.txt
+pip install .    # in editable mode: pip install -e .
 ```
 
 ## Description
