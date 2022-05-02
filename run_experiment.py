@@ -11,14 +11,25 @@ from moments_dnns.models import init_original_model, reset_model
 from moments_dnns.models import init_ff_model, init_res_model
 
 
-def run_experiment(architecture, total_depth, kernel_size, num_channels,
-                   batch_size, num_realizations, name_experiment,
-                   boundary='periodic', dataset='cifar10',
-                   epsilon=0.001, res_depth=2,
-                   num_computations=100,
-                   numpy_seed=0, verbose=True,
-                   compute_reff_signal=True, compute_reff_noise=True):
-    """ run_experiment
+def run_experiment(
+    architecture,
+    total_depth,
+    kernel_size,
+    num_channels,
+    batch_size,
+    num_realizations,
+    name_experiment,
+    boundary="periodic",
+    dataset="cifar10",
+    epsilon=0.001,
+    res_depth=2,
+    num_computations=100,
+    numpy_seed=0,
+    verbose=True,
+    compute_reff_signal=True,
+    compute_reff_noise=True,
+):
+    """run_experiment
     Entry point of the code to run experiments
 
     # Steps
@@ -71,71 +82,86 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
         # print parameter names and values
         frame = inspect.currentframe()
         args, _, _, param_values = inspect.getargvalues(frame)
-        print('Running experiment with parameters:')
+        print("Running experiment with parameters:")
         for name_param in args:
-            print('    {} = {}'.format(name_param, param_values[name_param]))
+            print("    {} = {}".format(name_param, param_values[name_param]))
 
     # assertions
-    make_asserts(architecture=architecture, kernel_size=kernel_size,
-                 num_channels=num_channels, boundary=boundary,
-                 total_depth=total_depth, dataset=dataset,
-                 num_computations=num_computations, batch_size=batch_size)
+    make_asserts(
+        architecture=architecture,
+        kernel_size=kernel_size,
+        num_channels=num_channels,
+        boundary=boundary,
+        total_depth=total_depth,
+        dataset=dataset,
+        num_computations=num_computations,
+        batch_size=batch_size,
+    )
 
     # load data (all images are flattened if kernel_size = 1)
-    signal_original, (original_strides,
-                      original_num,
-                      original_size,
-                      original_channels) = load_dataset(dataset, kernel_size)
+    signal_original, (
+        original_strides,
+        original_num,
+        original_size,
+        original_channels,
+    ) = load_dataset(dataset, kernel_size)
 
     # get name of moments to be computed
-    name_moments_raw, locs, (num_moments_raw, num_moments) \
-        = get_name_moments(architecture,
-                           compute_reff_signal,
-                           compute_reff_noise)
+    name_moments_raw, locs, (num_moments_raw, num_moments) = get_name_moments(
+        architecture, compute_reff_signal, compute_reff_noise
+    )
 
     # get submodel constants
-    spatial_size, num_submodels, sub_depth, delta_moments = \
-        get_submodel_constants(original_size, original_strides, total_depth,
-                               num_computations)
+    spatial_size, num_submodels, sub_depth, delta_moments = get_submodel_constants(
+        original_size, original_strides, total_depth, num_computations
+    )
 
     # initialize original model
-    original_model = init_original_model(original_size=original_size,
-                                         kernel_size=kernel_size,
-                                         original_channels=original_channels,
-                                         num_channels=num_channels,
-                                         boundary=boundary,
-                                         original_strides=original_strides)
+    original_model = init_original_model(
+        original_size=original_size,
+        kernel_size=kernel_size,
+        original_channels=original_channels,
+        num_channels=num_channels,
+        boundary=boundary,
+        original_strides=original_strides,
+    )
 
-    if architecture == 'vanilla':
+    if architecture == "vanilla":
         # vanilla net
-        submodel = init_ff_model(spatial_size=spatial_size,
-                                 kernel_size=kernel_size,
-                                 num_channels=num_channels,
-                                 boundary=boundary,
-                                 sub_depth=sub_depth,
-                                 delta_moments=delta_moments,
-                                 name_moments_raw=name_moments_raw,
-                                 batch_normalization=False)
-    elif architecture == 'bn_ff':
+        submodel = init_ff_model(
+            spatial_size=spatial_size,
+            kernel_size=kernel_size,
+            num_channels=num_channels,
+            boundary=boundary,
+            sub_depth=sub_depth,
+            delta_moments=delta_moments,
+            name_moments_raw=name_moments_raw,
+            batch_normalization=False,
+        )
+    elif architecture == "bn_ff":
         # batch normalized feedforward net
-        submodel = init_ff_model(spatial_size=spatial_size,
-                                 kernel_size=kernel_size,
-                                 num_channels=num_channels,
-                                 boundary=boundary,
-                                 sub_depth=sub_depth,
-                                 delta_moments=delta_moments,
-                                 name_moments_raw=name_moments_raw,
-                                 batch_normalization=True)
-    elif architecture == 'bn_res':
+        submodel = init_ff_model(
+            spatial_size=spatial_size,
+            kernel_size=kernel_size,
+            num_channels=num_channels,
+            boundary=boundary,
+            sub_depth=sub_depth,
+            delta_moments=delta_moments,
+            name_moments_raw=name_moments_raw,
+            batch_normalization=True,
+        )
+    elif architecture == "bn_res":
         # batch normalized resnet
-        submodel = init_res_model(spatial_size=spatial_size,
-                                  kernel_size=kernel_size,
-                                  num_channels=num_channels,
-                                  boundary=boundary,
-                                  sub_depth=sub_depth,
-                                  res_depth=res_depth,
-                                  delta_moments=delta_moments,
-                                  name_moments_raw=name_moments_raw)
+        submodel = init_res_model(
+            spatial_size=spatial_size,
+            kernel_size=kernel_size,
+            num_channels=num_channels,
+            boundary=boundary,
+            sub_depth=sub_depth,
+            res_depth=res_depth,
+            delta_moments=delta_moments,
+            name_moments_raw=name_moments_raw,
+        )
 
     # Fix numpy seed for image selection
     np.random.seed(numpy_seed)
@@ -144,26 +170,28 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
     moments = {}
 
     # save depth associated with each computation of moments
-    moments['depth'] = total_depth // num_computations \
-        * np.arange(1, num_computations + 1)
+    moments["depth"] = (
+        total_depth // num_computations * np.arange(1, num_computations + 1)
+    )
 
     # save res_depth (only relevant for resnets in the power law fit for plots)
-    moments['res_depth'] = res_depth
+    moments["res_depth"] = res_depth
 
     for ireal in tqdm(range(num_realizations)):
         # randomly sample original signal and noise
         ind_real = np.random.permutation(original_num)[:batch_size]
-        signal = signal_original[ind_real, ]
+        signal = signal_original[
+            ind_real,
+        ]
 
         # Start with unit variance noise
         # since all pathologies are invariant to original noise scaling and
         # since we use the right equations of propagation  - linear in
         # the input noise - this works, and later avoids the normalization
         # mu2(dx^0) in chi^l
-        noise = np.random.normal(0, 1, (batch_size,
-                                        original_size,
-                                        original_size,
-                                        original_channels))
+        noise = np.random.normal(
+            0, 1, (batch_size, original_size, original_size, original_channels)
+        )
 
         # normalize with constant rescaling to have mu2_signal = 1
         # this later avoids the additional normalization mu2(x^0) in chi^l
@@ -204,24 +232,24 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
                 #     which necessarily returns an array (batch_size,)
                 #  - outputs are already constants with respect to this dim
                 moment = moment.mean(1)
-                if 'mu2_noise' in name_moment_raw:
+                if "mu2_noise" in name_moment_raw:
                     # take exp for mu_2_noise, since it comes in log scale
                     # to avoid overflow inside model
                     moment = np.exp(moment)
 
                 # add loc
-                name_moment = name_moment_raw + '_' + loc
+                name_moment = name_moment_raw + "_" + loc
                 moments_real[name_moment] = moment
 
             # compute normalized sensitivity
-            chi_square = \
-                moments_real['mu2_noise_' + loc] \
-                / moments_real['mu2_signal_' + loc]
-            moments_real['chi_' + loc] = np.sqrt(chi_square)
+            chi_square = (
+                moments_real["mu2_noise_" + loc] / moments_real["mu2_signal_" + loc]
+            )
+            moments_real["chi_" + loc] = np.sqrt(chi_square)
 
         # add to aggregation
         for name_moment, moment in moments_real.items():
-            if (name_moment not in moments):  # initialize array
+            if name_moment not in moments:  # initialize array
                 moments[name_moment] = np.empty((0, num_computations))
             moments[name_moment] = np.vstack((moments[name_moment], moment))
 
@@ -229,6 +257,6 @@ def run_experiment(architecture, total_depth, kernel_size, num_channels,
     save_experiment(moments, name_experiment)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # fire enables to run this function directly in bash
     fire.Fire(run_experiment)

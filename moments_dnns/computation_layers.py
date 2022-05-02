@@ -4,7 +4,7 @@ from tensorflow.keras import backend as K
 
 
 class MomentsLayer(Layer):
-    """ MomentsLayer
+    """MomentsLayer
     Compute raw moments at given layer and given 'loc'
 
     # Computations
@@ -31,8 +31,8 @@ class MomentsLayer(Layer):
     # Returns
         moments_raw
     """
-    def __init__(self, name_moments_raw, moments_computation,
-                 reff_computation):
+
+    def __init__(self, name_moments_raw, moments_computation, reff_computation):
         self.name_moments_raw = name_moments_raw
         self.num_moments_raw = len(self.name_moments_raw)
 
@@ -46,8 +46,11 @@ class MomentsLayer(Layer):
         super(MomentsLayer, self).__init__()
 
     def compute_output_shape(self, input_shape):
-        return [(None, ) for _ in range(self.num_moments_raw)] \
-            if self.moments_computation else []
+        return (
+            [(None,) for _ in range(self.num_moments_raw)]
+            if self.moments_computation
+            else []
+        )
 
     def compute_reff(self, x):
         if self.reff_computation:
@@ -76,33 +79,33 @@ class MomentsLayer(Layer):
             log_noise = K.mean(log_noise)  # squeeze dimensions
 
             for name_moment_raw in self.name_moments_raw:
-                if name_moment_raw == 'nu1_abs_signal':
+                if name_moment_raw == "nu1_abs_signal":
                     moment_raw = K.mean(K.abs(signal))
-                elif name_moment_raw == 'nu2_signal':
+                elif name_moment_raw == "nu2_signal":
                     moment_raw = K.mean(K.pow(signal, 2))
-                elif name_moment_raw == 'nu4_signal':
+                elif name_moment_raw == "nu4_signal":
                     moment_raw = K.mean(K.pow(signal, 4))
-                elif name_moment_raw == 'mu2_signal':
+                elif name_moment_raw == "mu2_signal":
                     moment_raw = K.mean(K.pow(centered_signal, 2))
-                elif name_moment_raw == 'mu4_signal':
+                elif name_moment_raw == "mu4_signal":
                     moment_raw = K.mean(K.pow(centered_signal, 4))
-                elif name_moment_raw == 'mu2_noise':
+                elif name_moment_raw == "mu2_noise":
                     # computation in log scale here to avoid overflow
                     # noise is always centered -> mu2_noise = nu2_noise
                     moment_raw = K.log(K.mean(K.pow(noise, 2))) + log_noise
-                elif name_moment_raw == 'reff_signal':
+                elif name_moment_raw == "reff_signal":
                     moment_raw = self.compute_reff(signal)
-                elif name_moment_raw == 'reff_noise':
+                elif name_moment_raw == "reff_noise":
                     moment_raw = self.compute_reff(noise)
                 else:
                     raise NotImplementedError()
-                moments_raw.append(K.reshape(moment_raw, (1, )))
+                moments_raw.append(K.reshape(moment_raw, (1,)))
 
         return moments_raw
 
 
 class RescaleLayer(Layer):
-    """ RescaleLayer
+    """RescaleLayer
     Rescale noise to avoid overflow inside model
     Log of mu2_noise stored in log_noise
         (this value is reused afterwards in the computation of moments)
@@ -113,6 +116,7 @@ class RescaleLayer(Layer):
     # Returns
         [noise, log_noise]
     """
+
     def call(self, inputs):
         noise, log_noise = inputs
         mu2_noise = K.mean(K.pow(noise, 2), keepdims=True)

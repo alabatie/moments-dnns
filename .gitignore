@@ -3,3 +3,4 @@ moments_dnns/__pycache__/
 .ipynb_checkpoints/
 .DS_Store
 *.pyc
+*.idea  

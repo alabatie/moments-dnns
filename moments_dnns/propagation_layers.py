@@ -9,7 +9,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 class ConvLayer(Layer):
-    """ ConvLayer
+    """ConvLayer
     Convolution step in the simultaneous propagation of signal and noise
     Biases are taken to be zeros as in He initialization
     When boundary cond. are 'zero_padding', use conv2d with padding = 'same'
@@ -34,40 +34,59 @@ class ConvLayer(Layer):
     # Returns
         [signal, noise]
     """
-    def __init__(self, input_size, kernel_size, input_channels,
-                 output_channels, boundary, strides, fac_weigths=2.):
+
+    def __init__(
+        self,
+        input_size,
+        kernel_size,
+        input_channels,
+        output_channels,
+        boundary,
+        strides,
+        fac_weigths=2.0,
+    ):
         self.input_size = input_size
         self.kernel_size = kernel_size
         self.input_channels = input_channels
         self.output_channels = output_channels
         self.boundary = boundary
-        self.padding = 'valid' \
-            if (self.boundary in ['periodic', 'symmetric']) else 'same'
+        self.padding = (
+            "valid" if (self.boundary in ["periodic", "symmetric"]) else "same"
+        )
         self.strides = strides
-        self.kernel_shape = (self.kernel_size,
-                             self.kernel_size,
-                             self.input_channels,
-                             self.output_channels)
+        self.kernel_shape = (
+            self.kernel_size,
+            self.kernel_size,
+            self.input_channels,
+            self.output_channels,
+        )
 
         fan_in = self.input_channels * self.kernel_size**2
         std_weights = sqrt(fac_weigths / float(fan_in))
-        self.kernel_initializer = \
-            tf.compat.v1.keras.initializers.RandomNormal(stddev=std_weights)
+        self.kernel_initializer = tf.compat.v1.keras.initializers.RandomNormal(
+            stddev=std_weights
+        )
         super(ConvLayer, self).__init__()
 
     def build(self, input_shape):
         # create kernel
-        self.kernel = self.add_weight(shape=self.kernel_shape,
-                                      name='kernel',
-                                      initializer=self.kernel_initializer,
-                                      dtype=K.floatx())
+        self.kernel = self.add_weight(
+            shape=self.kernel_shape,
+            name="kernel",
+            initializer=self.kernel_initializer,
+            dtype=K.floatx(),
+        )
         super(ConvLayer, self).build(input_shape)
 
     def compute_output_shape(self, input_shape):
-        return [(None,
-                 self.input_size // self.strides,
-                 self.input_size // self.strides,
-                 self.output_channels)] * 2
+        return [
+            (
+                None,
+                self.input_size // self.strides,
+                self.input_size // self.strides,
+                self.output_channels,
+            )
+        ] * 2
 
     def pad_periodic(self, x):
         # pad with periodic boundary conditions
@@ -79,37 +98,53 @@ class ConvLayer(Layer):
     def pad_symmetric(self, x):
         # pad with symmetric boundary conditions (kernel size must be odd)
         pad_size = (self.kernel_size - 1) // 2
-        x = K.concatenate([x[:, :pad_size, :, :][:, ::-1, :, :], x,
-                           x[:, -pad_size:, :, :][:, ::-1, :, :]], axis=1)
-        x = K.concatenate([x[:, :, :pad_size, :][:, :, ::-1, :], x,
-                           x[:, :, -pad_size:, :][:, :, ::-1, :]], axis=2)
+        x = K.concatenate(
+            [
+                x[:, :pad_size, :, :][:, ::-1, :, :],
+                x,
+                x[:, -pad_size:, :, :][:, ::-1, :, :],
+            ],
+            axis=1,
+        )
+        x = K.concatenate(
+            [
+                x[:, :, :pad_size, :][:, :, ::-1, :],
+                x,
+                x[:, :, -pad_size:, :][:, :, ::-1, :],
+            ],
+            axis=2,
+        )
         return x
 
     def call(self, inputs):
         signal, noise = inputs
-        if (self.boundary == 'periodic') and (self.kernel_size > 1):
+        if (self.boundary == "periodic") and (self.kernel_size > 1):
             signal = self.pad_periodic(signal)
             noise = self.pad_periodic(noise)
-        elif (self.boundary == 'symmetric') and (self.kernel_size > 1):
+        elif (self.boundary == "symmetric") and (self.kernel_size > 1):
             signal = self.pad_symmetric(signal)
             noise = self.pad_symmetric(noise)
 
         # convolve signal and noise with the same kernel
-        signal = K.conv2d(signal,
-                          self.kernel,
-                          strides=(self.strides, ) * 2,
-                          padding=self.padding,
-                          data_format='channels_last')
-        noise = K.conv2d(noise,
-                         self.kernel,
-                         strides=(self.strides, ) * 2,
-                         padding=self.padding,
-                         data_format='channels_last')
+        signal = K.conv2d(
+            signal,
+            self.kernel,
+            strides=(self.strides,) * 2,
+            padding=self.padding,
+            data_format="channels_last",
+        )
+        noise = K.conv2d(
+            noise,
+            self.kernel,
+            strides=(self.strides,) * 2,
+            padding=self.padding,
+            data_format="channels_last",
+        )
         return [signal, noise]
 
 
 class BatchNormLayer(Layer):
-    """ BatchNormLayer
+    """BatchNormLayer
     Batch norm step in the simultaneous propagation of signal and noise
         -> signal is centered and normalized
         -> noise is normalized
@@ -124,6 +159,7 @@ class BatchNormLayer(Layer):
     # Returns
         [signal, noise]
     """
+
     def __init__(self, epsilon):
         self.K_epsilon = K.constant(epsilon)
         super(BatchNormLayer, self).__init__()
@@ -132,8 +168,7 @@ class BatchNormLayer(Layer):
         signal, noise = inputs
         mean_signal = K.mean(signal, axis=(0, 1, 2), keepdims=True)
         centered_signal = signal - mean_signal
-        var_signal = K.mean(K.pow(centered_signal, 2),
-                            axis=(0, 1, 2), keepdims=True)
+        var_signal = K.mean(K.pow(centered_signal, 2), axis=(0, 1, 2), keepdims=True)
 
         # signal is centered and normalized,
         # noise is only normalized
@@ -143,7 +178,7 @@ class BatchNormLayer(Layer):
 
 
 class ActivationLayer(Layer):
-    """ ActivationLayer
+    """ActivationLayer
     Activation step in the simultaneous propagation of signal and noise
         - signal goes through relu
         - noise goes through element-wise multiplication by relu derivative
@@ -154,6 +189,7 @@ class ActivationLayer(Layer):
     # Returns
         [signal, noise]
     """
+
     def call(self, inputs):
         signal, noise = inputs
         signal_diff = K.cast(K.greater(signal, K.constant(0.0)), K.floatx())
@@ -164,7 +200,7 @@ class ActivationLayer(Layer):
 
 
 class AddLayer(Layer):
-    """ AddLayer
+    """AddLayer
     Addition step in the simultaneous propagation of signal and noise
         (only used in resnets)
 
@@ -174,6 +210,7 @@ class AddLayer(Layer):
     # Returns
         [signal, noise]
     """
+
     def compute_output_shape(self, input_shape):
         return input_shape[:2]
 
