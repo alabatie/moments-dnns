@@ -95,7 +95,10 @@ def save_experiment(moments, name_experiment):
         moments (dict): moments of the experiment
         name_experiment (str): name of the experiment
     """
-    name_dir = os.path.join("npy", name_experiment)
+    file_folder = os.path.dirname(__file__)
+    npy_folder = os.path.join(file_folder, os.pardir, "npy")
+
+    name_dir = os.path.join(npy_folder, name_experiment)
     if os.path.isdir(name_dir):
         shutil.rmtree(name_dir)
     os.makedirs(name_dir)  # create a new dir
@@ -116,7 +119,10 @@ def load_experiment(name_experiment):
     # Returns
         moments (dict): moments of the experiment
     """
-    name_dir = os.path.join("npy", name_experiment)
+    file_folder = os.path.dirname(__file__)
+    npy_folder = os.path.join(file_folder, os.pardir, "npy")
+
+    name_dir = os.path.join(npy_folder, name_experiment)
     assert os.path.isdir(name_dir)
 
     moments = {}

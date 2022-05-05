@@ -3,7 +3,7 @@ from tqdm.auto import tqdm
 import fire
 import inspect
 
-from manage_experiments import save_experiment
+from moments_dnns.manage_experiments import save_experiment
 from moments_dnns.main_utils import get_name_moments, get_submodel_constants
 from moments_dnns.main_utils import load_dataset, make_asserts
 
