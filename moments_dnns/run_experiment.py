@@ -1,4 +1,5 @@
 import inspect
+import logging
 
 import fire
 import numpy as np
@@ -41,7 +42,7 @@ def run_experiment(
 
     # Usage
         - This function can be imported as a standard python function
-        - Or execute directly as a script with the fire interface, e.g.
+        - Or executed directly as a script with the fire interface, e.g.
             ```python run_experiment.py --architecture=bn_ff
               --total_depth=200 --kernel_size=3 --num_channels=512
               --boundary=periodic --dataset=cifar10 --batch_size=64
@@ -77,13 +78,13 @@ def run_experiment(
         compute_reff_signal: whether reff is computed for the signal
         compute_reff_noise: whether reff is computed for the noise
     """
-    if verbose:
-        # print parameter names and values
-        frame = inspect.currentframe()
-        args, _, _, param_values = inspect.getargvalues(frame)
-        print("Running experiment with parameters:")
-        for name_param in args:
-            print("    {} = {}".format(name_param, param_values[name_param]))
+    # log arguments
+    logger = logging.getLogger(__name__)
+    frame = inspect.currentframe()
+    args, _, _, param_values = inspect.getargvalues(frame)
+    logger.info("Running experiment with parameters:")
+    for name_param in args:
+        logger.info(f"{name_param} = {param_values[name_param]}")
 
     # assertions
     make_asserts(
