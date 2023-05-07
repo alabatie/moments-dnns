@@ -18,7 +18,9 @@ class MomentsLayer(Layer):
         'reff_noise': effective rank of noise
     """
 
-    def __init__(self, name_moments: list[str], compute_moments: bool, compute_reff: bool):
+    def __init__(
+        self, name_moments: list[str], compute_moments: bool, compute_reff: bool
+    ):
         """Init layer.
 
         # Args
@@ -35,9 +37,7 @@ class MomentsLayer(Layer):
 
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
         return (
-            [(None,) for _ in range(self.num_moments)]
-            if self.compute_moments
-            else []
+            [(None,) for _ in range(self.num_moments)] if self.compute_moments else []
         )
 
     def compute_effective_rank(self, x: tf.Tensor) -> tf.Tensor:
@@ -93,7 +93,7 @@ class MomentsLayer(Layer):
 
 
 class RescaleLayer(Layer):
-    """ Rescale noise to avoid overflow inside model.
+    """Rescale noise to avoid overflow inside model.
 
     Log of mu2_noise is stored in log_noise
         (this value is reused afterwards in the computation of moments)

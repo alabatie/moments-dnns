@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")  # remove matplotlib warnings
 
 def save_figure(name_fig: bool = None):
     """Save_figure.
-    
+
     Either save in pdf in figures/pdf/name_fig.pdf, or in png in figures/png/name_fig.png.
     """
     if name_fig is not None:
@@ -30,9 +30,11 @@ def save_figure(name_fig: bool = None):
         plt.savefig(path, bbox_inches="tight")
 
 
-def set_plot(fig_size: tuple[int, int], grid_spec: tuple[int, int], use_tex: bool = False) -> tuple[Figure, GridSpec]:
+def set_plot(
+    fig_size: tuple[int, int], grid_spec: tuple[int, int], use_tex: bool = False
+) -> tuple[Figure, GridSpec]:
     """Set seaborn style for plots.
-    
+
     # Args
         fig_size: size of figure
         grid_spec: grid specification
@@ -152,13 +154,15 @@ def plot_moments(
         plt.ylim(yrange)
 
 
-def plot_histo(ax: Axes, 
-               moment: np.ndarray, 
-               xfac: list[float], 
-               yfac: float, 
-               labels: list[str],
-               annotation: str,
-               xannotation: float):
+def plot_histo(
+    ax: Axes,
+    moment: np.ndarray,
+    xfac: list[float],
+    yfac: float,
+    labels: list[str],
+    annotation: str,
+    xannotation: float,
+):
     """Plot histogram of moments at four different depths.
 
     # Args
@@ -217,11 +221,11 @@ def plot_histo(ax: Axes,
 
 def make_histo(moment: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute histogram of the logarithm of moments at given depth.
-    
+
     Steps:
         - Get the results from np.histogram
         - Convert bin edges to centered bins
-        - Convert the histogram to a density 
+        - Convert the histogram to a density
         (this step does not matter for our plots since we do not show the y-ticks)
 
     # Args

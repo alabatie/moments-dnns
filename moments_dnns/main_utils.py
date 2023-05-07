@@ -91,11 +91,11 @@ def get_submodel_constants(
     return spatial_size, num_submodels, sub_depth, delta_moments
 
 
-def get_name_moments(architecture: str, 
-                     compute_reff_signal: bool, 
-                     compute_reff_noise: bool) -> tuple[list[str], list[str], int, int]:
+def get_name_moments(
+    architecture: str, compute_reff_signal: bool, compute_reff_noise: bool
+) -> tuple[list[str], list[str], int, int]:
     """Create list of moment names.
-    
+
     Create lists of raw moments to be computed.
     Create list of locs, depending on the architecture:
       - vanilla: ['loc1', 'loc2', 'loc3']
@@ -137,9 +137,11 @@ def get_name_moments(architecture: str,
     return name_moments, locs, num_moments, num_moments_loc
 
 
-def load_dataset(dataset: str, kernel_size: int) -> tuple[tf.Tensor, int, int, int, int]:
+def load_dataset(
+    dataset: str, kernel_size: int
+) -> tuple[tf.Tensor, int, int, int, int]:
     """Load_dataset.
-    
+
     Cifar images are 32 x 32 x 3
     Mnist images are 28 x 28, and thus must be reshaped to 28 x 28 x 1
     When kernel_size = 1, images are flattened to have spatial size n = 1

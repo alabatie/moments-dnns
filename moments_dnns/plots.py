@@ -5,7 +5,9 @@ from moments_dnns.plot_utils import plot_moments, plot_histo
 from moments_dnns.plot_utils import save_figure
 
 
-def plot_vanilla_histo(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+def plot_vanilla_histo(
+    moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None
+):
     """Plot histograms at 4 depths of (a) log nu2(x^l) and (b) log mu2(dx^l) = log nu2(dx^l).
 
     # Args
@@ -63,7 +65,10 @@ def plot_vanilla_histo(moments: dict[str, np.ndarray], use_tex: bool = True, nam
     # save figure
     save_figure(name_fig=name_fig)
 
-def plot_vanilla(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+
+def plot_vanilla(
+    moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None
+):
     """Plot containing 2 subplots for vanilla nets.
 
     # Args
@@ -124,7 +129,9 @@ def plot_vanilla(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig:
     save_figure(name_fig=name_fig)
 
 
-def plot_bn_ff(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+def plot_bn_ff(
+    moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None
+):
     """Plot containing 4 subplots for batch-normalized feedforward nets.
 
     # Args
@@ -236,7 +243,9 @@ def plot_bn_ff(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: s
     save_figure(name_fig=name_fig)
 
 
-def plot_bn_res(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+def plot_bn_res(
+    moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None
+):
     """Plot containing 4 subplots for batch-normalized feedforward ResNets.
 
     # Args

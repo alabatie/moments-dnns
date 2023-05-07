@@ -19,7 +19,7 @@ def init_orig_model(
     boundary: str,
     orig_strides: int,
 ) -> Model:
-    """Initialize model performing an original convolution 
+    """Initialize model performing an original convolution
         from (orig_size, orig_size, orig_channels)
         to (orig_size // orig_strides, orig_size // orig_strides, num_channels).
 
@@ -102,9 +102,7 @@ def init_ff_model(
     for ilayer in range(1, sub_depth + 1):
         # instantiate layers
         compute_moments = (ilayer % delta_moments) == 0
-        moments_layer = MomentsLayer(
-            name_moments, compute_moments, compute_reff=False
-        )
+        moments_layer = MomentsLayer(name_moments, compute_moments, compute_reff=False)
         reff_moments_layer = MomentsLayer(
             name_moments, compute_moments, compute_reff=True
         )

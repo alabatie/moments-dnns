@@ -17,6 +17,7 @@ class ConvLayer(Layer):
         -> Then use conv2d with padding = 'valid'
     Kernel is stored as attribute 'kernel' and reinitialized for every submodel.
     """
+
     def __init__(
         self,
         input_size: int,
@@ -153,7 +154,9 @@ class BatchNormLayer(Layer):
         signal, noise = inputs
         mean_signal = tf.reduce_mean(signal, axis=(0, 1, 2), keepdims=True)
         centered_signal = signal - mean_signal
-        var_signal = tf.reduce_mean(tf.pow(centered_signal, 2), axis=(0, 1, 2), keepdims=True)
+        var_signal = tf.reduce_mean(
+            tf.pow(centered_signal, 2), axis=(0, 1, 2), keepdims=True
+        )
 
         # signal is centered and normalized,
         # noise is only normalized
@@ -180,7 +183,9 @@ class AddLayer(Layer):
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
         return input_shape[:2]
 
-    def call(self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor]) -> tuple[tf.Tensor, tf.Tensor]:
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor]
+    ) -> tuple[tf.Tensor, tf.Tensor]:
         signal, noise, signal_skip, noise_skip = inputs
         signal = signal + signal_skip
         noise = noise + noise_skip

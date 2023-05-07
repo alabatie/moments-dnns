@@ -98,7 +98,9 @@ def run_experiment(
     )
 
     # load data (all images are flattened if kernel_size = 1)
-    signal_orig, orig_strides, orig_num, orig_size, orig_channels = load_dataset(dataset, kernel_size)
+    signal_orig, orig_strides, orig_num, orig_size, orig_channels = load_dataset(
+        dataset, kernel_size
+    )
 
     # get name of moments to be computed
     name_moments, locs, num_moments, num_moments_loc = get_name_moments(
