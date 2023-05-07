@@ -1,8 +1,7 @@
 import numpy as np
 
-from moments_dnns.plot_utils import set_plot, draw_line
-from moments_dnns.plot_utils import plot_moments, plot_histo
-from moments_dnns.plot_utils import save_figure
+from moments_dnns.plot_utils import (draw_line, plot_histo, plot_moments,
+                                     save_figure, set_plot)
 
 
 def plot_vanilla_histo(

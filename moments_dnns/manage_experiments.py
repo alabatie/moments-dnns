@@ -1,6 +1,7 @@
-import numpy as np
 import os
 import shutil
+
+import numpy as np
 
 
 def merge_experiments(name_experiments: list[str], name_merged: str):

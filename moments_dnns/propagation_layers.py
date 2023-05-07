@@ -1,7 +1,7 @@
+from math import sqrt
+
 import tensorflow as tf
 from tensorflow.python.keras.layers import Layer
-
-from math import sqrt
 
 # remove tf deprecated warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)

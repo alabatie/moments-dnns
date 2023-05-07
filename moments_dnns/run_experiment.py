@@ -1,14 +1,14 @@
-import numpy as np
-from tqdm.auto import tqdm
-import fire
 import inspect
 
-from moments_dnns.manage_experiments import save_experiment
-from moments_dnns.main_utils import get_name_moments, get_submodel_constants
-from moments_dnns.main_utils import load_dataset, make_asserts
+import fire
+import numpy as np
+from tqdm.auto import tqdm
 
-from moments_dnns.models import init_orig_model, reset_model
-from moments_dnns.models import init_ff_model, init_res_model
+from moments_dnns.main_utils import (get_name_moments, get_submodel_constants,
+                                     load_dataset, make_asserts)
+from moments_dnns.manage_experiments import save_experiment
+from moments_dnns.models import (init_ff_model, init_orig_model,
+                                 init_res_model, reset_model)
 
 
 def run_experiment(

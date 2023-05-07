@@ -1,13 +1,12 @@
-import seaborn as sns
+import os
+import warnings
+
 import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
+import numpy as np
+import seaborn as sns
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-
-import os
-import numpy as np
-
-import warnings
+from matplotlib.gridspec import GridSpec
 
 warnings.filterwarnings("ignore")  # remove matplotlib warnings
 
