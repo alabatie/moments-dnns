@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "moments-dnns"
+version = "1.0.0"
+description = "Code for the paper “Characterizing Well-behaved vs. Pathological Deep Neural Networks” published in 36th International Conference on Machine Learning (ICML 2019)"
+authors = ["Antoine Labatie <antoine.labatie@centraliens.net>"]
+license = "Apache License"
+readme = "README.md"
+packages = [{include = "**/*.py", from = "."}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+tensorflow = "^2.12.0"
+numpy = "1.23"
+pandas = "^1.2"
+silence-tensorflow = "^1.2.1"
+seaborn = "^0.12.2"
+jupyterlab = "^3.6.3"
+tqdm = "^4.65.0"
+fire = "^0.5.0"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.0.0"
+pylint = "^2.17.4"
+bandit = "^1.7.5"
+isort = "^5.12.0"
+pre-commit = "^3.3.1"
+pytest = "^7.3.1"
+black = {extras = ["jupyter"], version = "^23.3.0"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

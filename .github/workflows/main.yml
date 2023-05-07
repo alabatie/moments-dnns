@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #       check-out repo and set-up python
+      # check-out repo and set-up python
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.10'
       #----------------------------------------------
-      #  -----  install & configure poetry  -----
+      # install & configure poetry
       #----------------------------------------------
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -37,11 +37,9 @@ jobs:
         run: |
           poetry lock --check
           poetry run bandit --recursive --quiet --skip B101 tests/
-          poetry export --format requirements.txt --output requirements.txt --without-hashes --dev
-          poetry run safety check --bare --file requirements.txt
-          pre-commit run --all
+          poetry run pre-commit run --all
       #----------------------------------------------
-      #              run test suites
+      # run test suites
       #----------------------------------------------
       - name: Run tests
         run: poetry run pytest tests/

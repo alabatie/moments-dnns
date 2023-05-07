@@ -1,57 +1,55 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Layer
-from tensorflow.keras import backend as K
-
+"""Layers of propagation of signal and noise."""
 from math import sqrt
+
+import tensorflow as tf
+from tensorflow.python.keras.layers import Layer
 
 # remove tf deprecated warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 class ConvLayer(Layer):
-    """ConvLayer
-    Convolution step in the simultaneous propagation of signal and noise
-    Biases are taken to be zeros as in He initialization
-    When boundary cond. are 'zero_padding', use conv2d with padding = 'same'
+    """Convolution step in the simultaneous propagation of signal and noise.
+
+    Biases are taken to be zeros as in He initialization.
+    When boundary cond. are 'zero_padding', use conv2d with padding = 'same'.
     When boundary cond. are 'periodic' or 'symmetric':
-        -> first pad signal and noise
-        -> then use conv2d with padding = 'valid'
-    Kernel is stored as attribute 'kernel' and reinitialized for every submodel
-
-    # Initialization
-        input_size (int): spatial extent of input
-        kernel_size (int): spatial extent of convolutional kernel
-        input_channels (int): number of inputs channels
-        output_channels (int): number of output channels
-        boundary (str): boundary conditions
-        strides (int): strides of convolution
-        fac_weigths (float): variance of weights equal to fac_weights / fan_in
-            (default value of fac_weights is 2. as in He initialization)
-
-    # Arguments
-        [signal, noise]
-
-    # Returns
-        [signal, noise]
+        -> First pad signal and noise
+        -> Then use conv2d with padding = 'valid'
+    Kernel is stored as attribute 'kernel' and reinitialized for every submodel.
     """
+
+    # pylint: disable=abstract-method
 
     def __init__(
         self,
-        input_size,
-        kernel_size,
-        input_channels,
-        output_channels,
-        boundary,
-        strides,
-        fac_weigths=2.0,
+        input_size: int,
+        kernel_size: int,
+        input_channels: int,
+        output_channels: int,
+        boundary: str,
+        strides: int,
+        fac_weigths: float = 2.0,
     ):
+        """Initialize layer.
+
+        # Args
+            input_size: spatial extent of input
+            kernel_size: spatial extent of convolutional kernel
+            input_channels: number of inputs channels
+            output_channels: number of output channels
+            boundary: boundary conditions
+            strides: strides of convolution
+            fac_weigths: variance of weights equal to fac_weights / fan_in
+                (default value of fac_weights is 2. as in He initialization)
+        """
         self.input_size = input_size
         self.kernel_size = kernel_size
         self.input_channels = input_channels
         self.output_channels = output_channels
         self.boundary = boundary
         self.padding = (
-            "valid" if (self.boundary in ["periodic", "symmetric"]) else "same"
+            "VALID" if (self.boundary in ["periodic", "symmetric"]) else "SAME"
         )
         self.strides = strides
         self.kernel_shape = (
@@ -60,25 +58,20 @@ class ConvLayer(Layer):
             self.input_channels,
             self.output_channels,
         )
-
         fan_in = self.input_channels * self.kernel_size**2
         std_weights = sqrt(fac_weigths / float(fan_in))
-        self.kernel_initializer = tf.compat.v1.keras.initializers.RandomNormal(
-            stddev=std_weights
-        )
-        super(ConvLayer, self).__init__()
-
-    def build(self, input_shape):
-        # create kernel
         self.kernel = self.add_weight(
             shape=self.kernel_shape,
             name="kernel",
-            initializer=self.kernel_initializer,
-            dtype=K.floatx(),
+            initializer=tf.compat.v1.keras.initializers.RandomNormal(
+                stddev=std_weights
+            ),
+            dtype=tf.float32,
         )
-        super(ConvLayer, self).build(input_shape)
+        super().__init__()
 
-    def compute_output_shape(self, input_shape):
+    def compute_output_shape(self, input_shape) -> list[tuple]:
+        """Return output shapes."""
         return [
             (
                 None,
@@ -88,35 +81,38 @@ class ConvLayer(Layer):
             )
         ] * 2
 
-    def pad_periodic(self, x):
-        # pad with periodic boundary conditions
+    def pad_periodic(self, in_tensor: tf.Tensor) -> tf.Tensor:
+        """Pad with periodic boundary conditions."""
         pad_size = self.kernel_size - 1
-        x = K.concatenate([x[:, -pad_size:, :, :], x], axis=1)
-        x = K.concatenate([x[:, :, -pad_size:, :], x], axis=2)
-        return x
+        out_tensor = tf.concat([in_tensor[:, -pad_size:, :, :], in_tensor], 1)
+        out_tensor = tf.concat([out_tensor[:, :, -pad_size:, :], out_tensor], 2)
+        return out_tensor
 
-    def pad_symmetric(self, x):
-        # pad with symmetric boundary conditions (kernel size must be odd)
+    def pad_symmetric(self, in_tensor: tf.Tensor) -> tf.Tensor:
+        """Pad with symmetric boundary conditions (kernel size must be odd)."""
         pad_size = (self.kernel_size - 1) // 2
-        x = K.concatenate(
+        out_tensor = tf.concat(
             [
-                x[:, :pad_size, :, :][:, ::-1, :, :],
-                x,
-                x[:, -pad_size:, :, :][:, ::-1, :, :],
+                in_tensor[:, :pad_size, :, :][:, ::-1, :, :],
+                in_tensor,
+                in_tensor[:, -pad_size:, :, :][:, ::-1, :, :],
             ],
-            axis=1,
+            1,
         )
-        x = K.concatenate(
+        out_tensor = tf.concat(
             [
-                x[:, :, :pad_size, :][:, :, ::-1, :],
-                x,
-                x[:, :, -pad_size:, :][:, :, ::-1, :],
+                out_tensor[:, :, :pad_size, :][:, :, ::-1, :],
+                out_tensor,
+                out_tensor[:, :, -pad_size:, :][:, :, ::-1, :],
             ],
-            axis=2,
+            2,
         )
-        return x
+        return out_tensor
 
-    def call(self, inputs):
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise = inputs
         if (self.boundary == "periodic") and (self.kernel_size > 1):
             signal = self.pad_periodic(signal)
@@ -126,96 +122,86 @@ class ConvLayer(Layer):
             noise = self.pad_symmetric(noise)
 
         # convolve signal and noise with the same kernel
-        signal = K.conv2d(
+        signal = tf.nn.conv2d(
             signal,
             self.kernel,
             strides=(self.strides,) * 2,
             padding=self.padding,
-            data_format="channels_last",
+            data_format="NHWC",
         )
-        noise = K.conv2d(
+        noise = tf.nn.conv2d(
             noise,
             self.kernel,
             strides=(self.strides,) * 2,
             padding=self.padding,
-            data_format="channels_last",
+            data_format="NHWC",
         )
-        return [signal, noise]
+        return signal, noise
 
 
 class BatchNormLayer(Layer):
-    """BatchNormLayer
-    Batch norm step in the simultaneous propagation of signal and noise
-        -> signal is centered and normalized
-        -> noise is normalized
-        -> each channel is normalized by sqrt(var_signal + epsilon)
+    """Batch Norm step in the simultaneous propagation of signal and noise."""
 
-    # Initialization
-        epsilon (float): batch norm fuzz factor
+    # pylint: disable=abstract-method
 
-    # Arguments
-        [signal, noise]
+    def __init__(self, epsilon: float):
+        """Initialize layer.
 
-    # Returns
-        [signal, noise]
-    """
+        # Args
+            epsilon: fuzz factor of Batch Norm
+        """
+        self.epsilon = epsilon
+        super().__init__()
 
-    def __init__(self, epsilon):
-        self.K_epsilon = K.constant(epsilon)
-        super(BatchNormLayer, self).__init__()
-
-    def call(self, inputs):
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise = inputs
-        mean_signal = K.mean(signal, axis=(0, 1, 2), keepdims=True)
+        mean_signal = tf.reduce_mean(signal, axis=(0, 1, 2), keepdims=True)
         centered_signal = signal - mean_signal
-        var_signal = K.mean(K.pow(centered_signal, 2), axis=(0, 1, 2), keepdims=True)
+        var_signal = tf.reduce_mean(
+            tf.pow(centered_signal, 2), axis=(0, 1, 2), keepdims=True
+        )
 
         # signal is centered and normalized,
         # noise is only normalized
-        signal = centered_signal / K.sqrt(var_signal + self.K_epsilon)
-        noise = noise / K.sqrt(var_signal + self.K_epsilon)
-        return [signal, noise]
+        signal = centered_signal / tf.sqrt(var_signal + self.epsilon)
+        noise = noise / tf.sqrt(var_signal + self.epsilon)
+        return signal, noise
 
 
 class ActivationLayer(Layer):
-    """ActivationLayer
-    Activation step in the simultaneous propagation of signal and noise
-        - signal goes through relu
-        - noise goes through element-wise multiplication by relu derivative
+    """Activation step in the simultaneous propagation of signal and noise."""
 
-    # Arguments
-        [signal, noise]
+    # pylint: disable=abstract-method
 
-    # Returns
-        [signal, noise]
-    """
-
-    def call(self, inputs):
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise = inputs
-        signal_diff = K.cast(K.greater(signal, K.constant(0.0)), K.floatx())
+        signal_diff = tf.cast(tf.math.greater(signal, 0), tf.float32)
 
-        signal = K.relu(signal)
+        signal = tf.nn.relu(signal)
         noise = noise * signal_diff
-        return [signal, noise]
+        return signal, noise
 
 
 class AddLayer(Layer):
-    """AddLayer
-    Addition step in the simultaneous propagation of signal and noise
-        (only used in resnets)
+    """Addition step in the simultaneous propagation of signal and noise."""
 
-    # Arguments
-        [signal, noise, signal_skip, noise_skip]
+    # pylint: disable=abstract-method
 
-    # Returns
-        [signal, noise]
-    """
-
-    def compute_output_shape(self, input_shape):
+    def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
+        """Return output shapes."""
         return input_shape[:2]
 
-    def call(self, inputs):
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise, signal_skip, noise_skip = inputs
         signal = signal + signal_skip
         noise = noise + noise_skip
-        return [signal, noise]
+        return signal, noise
