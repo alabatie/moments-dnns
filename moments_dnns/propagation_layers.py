@@ -112,6 +112,7 @@ class ConvLayer(Layer):
     def call(
         self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise = inputs
         if (self.boundary == "periodic") and (self.kernel_size > 1):
             signal = self.pad_periodic(signal)
@@ -155,6 +156,7 @@ class BatchNormLayer(Layer):
     def call(
         self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise = inputs
         mean_signal = tf.reduce_mean(signal, axis=(0, 1, 2), keepdims=True)
         centered_signal = signal - mean_signal
@@ -177,6 +179,7 @@ class ActivationLayer(Layer):
     def call(
         self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise = inputs
         signal_diff = tf.cast(tf.math.greater(signal, 0), tf.float32)
 
@@ -191,11 +194,13 @@ class AddLayer(Layer):
     # pylint: disable=abstract-method
 
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
+        """Return output shapes."""
         return input_shape[:2]
 
     def call(
         self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Call layer."""
         signal, noise, signal_skip, noise_skip = inputs
         signal = signal + signal_skip
         noise = noise + noise_skip

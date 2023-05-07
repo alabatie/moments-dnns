@@ -18,6 +18,7 @@ class MomentsLayer(Layer):
         'reff_signal': effective rank of signal
         'reff_noise': effective rank of noise
     """
+
     # pylint: disable=abstract-method
 
     def __init__(
@@ -65,6 +66,7 @@ class MomentsLayer(Layer):
     def call(
         self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tf.Tensor:
+        """Call layer."""
         signal, noise, log_noise = inputs
         centered_signal = signal - tf.reduce_mean(signal, axis=[0, 1, 2], keepdims=True)
         log_noise = tf.reduce_mean(log_noise)  # squeeze dimensions
@@ -104,9 +106,11 @@ class RescaleLayer(Layer):
     Log of mu2_noise is stored in log_noise
         (this value is reused afterwards in the computation of moments)
     """
+
     # pylint: disable=abstract-method
 
     def call(self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs):
+        """Call layer."""
         noise, log_noise = inputs
         mu2_noise = tf.reduce_mean(tf.pow(noise, 2), keepdims=True)
 

@@ -37,7 +37,7 @@ jobs:
         run: |
           poetry lock --check
           poetry run bandit --recursive --quiet --skip B101 tests/
-          poetry export --format requirements.txt --output requirements.txt --without-hashes --dev
+          poetry export --format requirements.txt --output requirements.txt --without-hashes --with dev
           poetry run safety check --bare --file requirements.txt
           pre-commit run --all
       #----------------------------------------------

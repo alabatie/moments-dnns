@@ -19,9 +19,10 @@ def init_orig_model(
     boundary: str,
     orig_strides: int,
 ) -> Model:
-    """Initialize model performing an original convolution
-        from (orig_size, orig_size, orig_channels)
-        to (orig_size // orig_strides, orig_size // orig_strides, num_channels).
+    """Initialize model performing an original convolution.
+
+    From (orig_size, orig_size, orig_channels)
+    to (orig_size // orig_strides, orig_size // orig_strides, num_channels).
 
     The convolution is initialized with 'LeCun normal' since no ReLU follows.
     When kernel_size > 1, orig_strides = 2 to reduce spatial extent.
