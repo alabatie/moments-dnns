@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import warnings
 
 import matplotlib.pyplot as plt
@@ -17,15 +17,14 @@ def save_figure(name_fig: bool = None):
     Either save in pdf in figures/pdf/name_fig.pdf, or in png in figures/png/name_fig.png.
     """
     if name_fig is not None:
-        file_folder = os.path.dirname(__file__)
-        fig_folder = os.path.join(file_folder, os.pardir, "figures")
+        fig_folder = Path(__file__).parent / "figures"
 
         # save pdf
-        path = os.path.join(fig_folder, "pdf", name_fig + ".pdf")
+        path = fig_folder / "pdf" / f"{name_fig}.pdf"
         plt.savefig(path, bbox_inches="tight")
 
         # save png
-        path = os.path.join(fig_folder, "png", name_fig + ".png")
+        path = fig_folder / "png" / f"{name_fig}.png"
         plt.savefig(path, bbox_inches="tight")
 
 

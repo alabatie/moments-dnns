@@ -1,5 +1,5 @@
-import os
 import shutil
+from pathlib import Path
 
 import numpy as np
 
@@ -96,17 +96,15 @@ def save_experiment(moments: dict[str, np.ndarray], name_experiment: str):
         moments: moments of the experiment
         name_experiment: name of the experiment
     """
-    file_folder = os.path.dirname(__file__)
-    npy_folder = os.path.join(file_folder, os.pardir, "npy")
-
-    name_dir = os.path.join(npy_folder, name_experiment)
-    if os.path.isdir(name_dir):
-        shutil.rmtree(name_dir)
-    os.makedirs(name_dir)  # create a new dir
+    npy_dir = Path(__file__).parent.parent / "npy"
+    exp_dir = npy_dir / name_experiment
+    if exp_dir.is_dir():
+        shutil.rmtree(exp_dir)
+    exp_dir.mkdir()  # create a new dir
 
     # save different moments as different .npy files
     for name_moment, moment in moments.items():
-        path_file = os.path.join(name_dir, name_moment)
+        path_file = exp_dir / name_moment
         np.save(path_file, moment)
 
 
@@ -116,15 +114,13 @@ def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
     # Args
         name_experiment: name of the experiment
     """
-    file_folder = os.path.dirname(__file__)
-    npy_folder = os.path.join(file_folder, os.pardir, "npy")
-
-    name_dir = os.path.join(npy_folder, name_experiment)
-    assert os.path.isdir(name_dir)
+    npy_dir = Path(__file__).parent.parent / "npy"
+    exp_dir = npy_dir / name_experiment
+    if not exp_dir.is_dir():
+        raise ValueError("Experiment folder does not exist")
 
     moments = {}
-    for name_file in os.listdir(name_dir):
-        name_moment = name_file.split(".")[0]
-        path_file = os.path.join(name_dir, name_file)
+    for path_file in exp_dir.glob("*"):
+        name_moment = path_file.stem
         moments[name_moment] = np.load(path_file)
     return moments
