@@ -7,37 +7,36 @@ from moments_dnns.manage_experiments import save_experiment
 from moments_dnns.main_utils import get_name_moments, get_submodel_constants
 from moments_dnns.main_utils import load_dataset, make_asserts
 
-from moments_dnns.models import init_original_model, reset_model
+from moments_dnns.models import init_orig_model, reset_model
 from moments_dnns.models import init_ff_model, init_res_model
 
 
 def run_experiment(
-    architecture,
-    total_depth,
-    kernel_size,
-    num_channels,
-    batch_size,
-    num_realizations,
-    name_experiment,
-    boundary="periodic",
-    dataset="cifar10",
-    epsilon=0.001,
-    res_depth=2,
-    num_computations=100,
-    numpy_seed=0,
-    verbose=True,
-    compute_reff_signal=True,
-    compute_reff_noise=True,
+    architecture: str,
+    total_depth: int,
+    kernel_size: int,
+    num_channels: int,
+    batch_size: int,
+    num_sims: int,
+    name_experiment: str,
+    boundary: str = "periodic",
+    dataset: str = "cifar10",
+    epsilon: float = 0.001,
+    res_depth: int = 2,
+    num_computations: int = 100,
+    numpy_seed: int = 0,
+    verbose: bool = True,
+    compute_reff_signal: bool = True,
+    compute_reff_noise: bool = True,
 ):
-    """run_experiment
-    Entry point of the code to run experiments
+    """Entry point of the code to run experiments.
 
     # Steps
         - Assert that experiment constants are valid
         - Load data
         - Get name of moments to be computed
         - Initialize Keras models
-        - For each realization, propagate noise and signal, fetch moments
+        - For each simulation, propagate noise and signal, fetch moments
         - Save moments in results/name_experiment/ as .npy files
 
     # Usage
@@ -46,37 +45,37 @@ def run_experiment(
             ```python run_experiment.py --architecture=bn_ff
               --total_depth=200 --kernel_size=3 --num_channels=512
               --boundary=periodic --dataset=cifar10 --batch_size=64
-              --num_realizations=1000  --name_experiment=bn_ff```
+              --num_sims=1000  --name_experiment=bn_ff```
 
-    # Arguments
-        architecture (str): 'vanilla' or 'bn_ff' or 'bn_res'
-        total_depth (int): total depth of the experiment
-        kernel_size (int): spatial extent of convolutional kernel
-        num_channels (int): number of channels
-        batch_size (int): number of images considered for each realization
-            (in other words, 1 realization = 1 batch)
-        num_realizations (int): number of realizations in the experiment,
+    # Args
+        architecture: 'vanilla' or 'bn_ff' or 'bn_res'
+        total_depth: total depth of the experiment
+        kernel_size: spatial extent of convolutional kernel
+        num_channels: number of channels
+        batch_size: number of images considered for each simulation
+            (in other words, 1 simulation = 1 batch)
+        num_sims: number of simulations in the experiment,
             i.e. number of randomly initialized simultaneous propagation of
             signal on noise with computation of moments
-        name_experiment (str): name of experiment / directory to save results
+        name_experiment: name of experiment / directory to save results
             (if directory already exists, it will be deleted and created again)
-        boundary (str): boundary condition among 'periodic' or 'symmetric'
+        boundary: boundary condition among 'periodic' or 'symmetric'
             or 'zero_padding' (only relevant if kernel_size > 1)
-        dataset (str): 'cifar10' or 'mnist'
-        epsilon (float): batch normalization fuzz factor
+        dataset: 'cifar10' or 'mnist'
+        epsilon: fuzz factor of Batch Norm
             (only relevant if architecture = 'bn_ff' or 'bn_res')
-        res_depth (int): feedforward depth of residual units
+        res_depth: feedforward depth of residual units
             (only relevant if architecture = 'bn_res')
-        num_computations (int): total number of moment computations
+        num_computations: total number of moment computations
             (moment computation every total depth // num_computations layers)
-        numpy_seed (int):
+        numpy_seed:
             - seed to reproduce image selection
             - it does not lead to fully deterministic behaviour either,
                 but this is not a problem since we are only concerned
                 in expectations and 1-sigma intervals
-        verbose (bool): whether parameter values are printed
-        compute_reff_signal (bool): whether reff is computed for the signal
-        compute_reff_noise (bool): whether reff is computed for the noise
+        verbose: whether parameter values are printed
+        compute_reff_signal: whether reff is computed for the signal
+        compute_reff_noise: whether reff is computed for the noise
     """
     if verbose:
         # print parameter names and values
@@ -99,31 +98,26 @@ def run_experiment(
     )
 
     # load data (all images are flattened if kernel_size = 1)
-    signal_original, (
-        original_strides,
-        original_num,
-        original_size,
-        original_channels,
-    ) = load_dataset(dataset, kernel_size)
+    signal_orig, orig_strides, orig_num, orig_size, orig_channels = load_dataset(dataset, kernel_size)
 
     # get name of moments to be computed
-    name_moments_raw, locs, (num_moments_raw, num_moments) = get_name_moments(
+    name_moments, locs, num_moments, num_moments_loc = get_name_moments(
         architecture, compute_reff_signal, compute_reff_noise
     )
 
     # get submodel constants
     spatial_size, num_submodels, sub_depth, delta_moments = get_submodel_constants(
-        original_size, original_strides, total_depth, num_computations
+        orig_size, orig_strides, total_depth, num_computations
     )
 
     # initialize original model
-    original_model = init_original_model(
-        original_size=original_size,
+    original_model = init_orig_model(
+        orig_size=orig_size,
         kernel_size=kernel_size,
-        original_channels=original_channels,
+        orig_channels=orig_channels,
         num_channels=num_channels,
         boundary=boundary,
-        original_strides=original_strides,
+        orig_strides=orig_strides,
     )
 
     if architecture == "vanilla":
@@ -135,11 +129,12 @@ def run_experiment(
             boundary=boundary,
             sub_depth=sub_depth,
             delta_moments=delta_moments,
-            name_moments_raw=name_moments_raw,
-            batch_normalization=False,
+            name_moments=name_moments,
+            epsilon=epsilon,
+            batch_norm=False,
         )
     elif architecture == "bn_ff":
-        # batch normalized feedforward net
+        # batch-normalized feedforward net
         submodel = init_ff_model(
             spatial_size=spatial_size,
             kernel_size=kernel_size,
@@ -147,11 +142,12 @@ def run_experiment(
             boundary=boundary,
             sub_depth=sub_depth,
             delta_moments=delta_moments,
-            name_moments_raw=name_moments_raw,
-            batch_normalization=True,
+            name_moments=name_moments,
+            epsilon=epsilon,
+            batch_norm=True,
         )
     elif architecture == "bn_res":
-        # batch normalized resnet
+        # batch-normalized resnet
         submodel = init_res_model(
             spatial_size=spatial_size,
             kernel_size=kernel_size,
@@ -160,29 +156,28 @@ def run_experiment(
             sub_depth=sub_depth,
             res_depth=res_depth,
             delta_moments=delta_moments,
-            name_moments_raw=name_moments_raw,
+            name_moments=name_moments,
+            epsilon=epsilon,
         )
 
     # Fix numpy seed for image selection
     np.random.seed(numpy_seed)
 
-    # this dict will aggregate all moments from all realizations
-    moments = {}
+    # this dict will aggregate all moments from all simulations
+    moments_all = {}
 
     # save depth associated with each computation of moments
-    moments["depth"] = (
+    moments_all["depth"] = (
         total_depth // num_computations * np.arange(1, num_computations + 1)
     )
 
     # save res_depth (only relevant for resnets in the power law fit for plots)
-    moments["res_depth"] = res_depth
+    moments_all["res_depth"] = res_depth
 
-    for ireal in tqdm(range(num_realizations)):
+    for _ in tqdm(range(num_sims)):
         # randomly sample original signal and noise
-        ind_real = np.random.permutation(original_num)[:batch_size]
-        signal = signal_original[
-            ind_real,
-        ]
+        ind_sim = np.random.permutation(orig_num)[:batch_size]
+        signal = signal_orig[ind_sim]
 
         # Start with unit variance noise
         # since all pathologies are invariant to original noise scaling and
@@ -190,39 +185,39 @@ def run_experiment(
         # the input noise - this works, and later avoids the normalization
         # mu2(dx^0) in chi^l
         noise = np.random.normal(
-            0, 1, (batch_size, original_size, original_size, original_channels)
+            0, 1, (batch_size, orig_size, orig_size, orig_channels)
         )
 
         # normalize with constant rescaling to have mu2_signal = 1
         # this later avoids the additional normalization mu2(x^0) in chi^l
-        mean_signal = signal.mean(axis=(0, 1, 2), keepdims=True)
-        std_signal = signal.std(axis=(0, 1, 2), keepdims=True)
+        mean_signal = np.mean(signal, axis=(0, 1, 2), keepdims=True)
+        std_signal = np.std(signal, axis=(0, 1, 2), keepdims=True)
         signal = (signal - mean_signal) / std_signal
 
         # pass original signal and noise through original model
         inputs = [signal, noise]
         reset_model(original_model)
-        outputs = original_model.predict(inputs, batch_size=batch_size)
+        outputs = original_model.predict(inputs, batch_size=batch_size, verbose=False)
 
         # incorporate logarithm of mu2(dx^l)
         log_noise = np.zeros((batch_size, 1, 1, 1))  # start at zero log
         inputs = outputs + [log_noise]
 
         # pass through the same keras submodel, each time reinitialized
-        moments_raw = []
-        for imodel in range(num_submodels):  # total depth divided in submodels
+        moments = []
+        for _ in range(num_submodels):  # total depth divided in submodels
             reset_model(submodel)  # reinitialize submodel
             outputs = submodel.predict(inputs, batch_size=batch_size)
 
-            moments_raw += outputs[3:]  # fetch signal, noise, log_noise
+            moments += outputs[3:]  # fetch signal, noise, log_noise
             inputs = outputs[:3]  # fetch moments
 
         # add locs to moments
-        moments_real = {}
+        moments_sim = {}
         for iloc, loc in enumerate(locs):
-            for iraw, name_moment_raw in enumerate(name_moments_raw):
-                imoment = iloc * num_moments_raw + iraw
-                moment = moments_raw[imoment::num_moments]
+            for iraw, name_moment in enumerate(name_moments):
+                imoment_loc = iloc * num_moments + iraw
+                moment = moments[imoment_loc::num_moments_loc]
 
                 # convert to float128 to deal with large values
                 moment = np.array(moment, dtype=np.float128)
@@ -232,29 +227,29 @@ def run_experiment(
                 #     which necessarily returns an array (batch_size,)
                 #  - outputs are already constants with respect to this dim
                 moment = moment.mean(1)
-                if "mu2_noise" in name_moment_raw:
+                if "mu2_noise" in name_moment:
                     # take exp for mu_2_noise, since it comes in log scale
                     # to avoid overflow inside model
                     moment = np.exp(moment)
 
                 # add loc
-                name_moment = name_moment_raw + "_" + loc
-                moments_real[name_moment] = moment
+                name_moment = name_moment + "_" + loc
+                moments_sim[name_moment] = moment
 
             # compute normalized sensitivity
             chi_square = (
-                moments_real["mu2_noise_" + loc] / moments_real["mu2_signal_" + loc]
+                moments_sim["mu2_noise_" + loc] / moments_sim["mu2_signal_" + loc]
             )
-            moments_real["chi_" + loc] = np.sqrt(chi_square)
+            moments_sim["chi_" + loc] = np.sqrt(chi_square)
 
         # add to aggregation
-        for name_moment, moment in moments_real.items():
-            if name_moment not in moments:  # initialize array
-                moments[name_moment] = np.empty((0, num_computations))
-            moments[name_moment] = np.vstack((moments[name_moment], moment))
+        for name_moment, moment in moments_sim.items():
+            if name_moment not in moments_all:  # initialize array
+                moments_all[name_moment] = np.empty((0, num_computations))
+            moments_all[name_moment] = np.vstack((moments_all[name_moment], moment))
 
     # save experiment
-    save_experiment(moments, name_experiment)
+    save_experiment(moments_all, name_experiment)
 
 
 if __name__ == "__main__":

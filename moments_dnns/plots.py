@@ -1,21 +1,19 @@
+import numpy as np
+
 from moments_dnns.plot_utils import set_plot, draw_line
 from moments_dnns.plot_utils import plot_moments, plot_histo
 from moments_dnns.plot_utils import save_figure
 
 
-def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
-    """plot_vanilla_histo
-    Plot containing two subplots showing the histograms at 4 depths of
-            (a) log nu2(x^l)
-            (b) log mu2(dx^l) = log nu2(dx^l)
+def plot_vanilla_histo(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+    """Plot histograms at 4 depths of (a) log nu2(x^l) and (b) log mu2(dx^l) = log nu2(dx^l).
 
-    # Arguments
-        moments (dict): moments from the experiment
-        use_tex (bool): whether latex is used in legends and annotations
-            (If use_tex = True and no LaTeX distribution is found,
-             python will crash)
-        name_fig (str): the figure is saved as figures/name_fig.pdf
-            (if name_fig is left to None, no figure is saved)
+    # Args
+        moments: moments from the experiment
+        use_tex: whether latex is used in legends and annotations
+            (If set to True, a LaTeX distribution must be found)
+        name_fig: the figure is saved as figures/name_fig.pdf
+            (if left to None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 4.0), grid_spec=(1, 2), use_tex=use_tex)
     if use_tex:
@@ -65,20 +63,15 @@ def plot_vanilla_histo(moments, use_tex=True, name_fig=None):
     # save figure
     save_figure(name_fig=name_fig)
 
+def plot_vanilla(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+    """Plot containing 2 subplots for vanilla nets.
 
-def plot_vanilla(moments, use_tex=True, name_fig=None):
-    """plot_vanilla
-    Plot containing 2 subplots for vanilla nets with the depth evolution of
-        (a) delta chi^l
-        (b) reff(x^l)
-
-    # Arguments
-        moments (dict): moments from the experiment
-        use_tex (bool): whether latex is used in legends and annotations
-            (If use_tex = True and no LaTeX distribution is found,
-             python will crash)
-        name_fig (str): the figure is saved as figures/name_fig.pdf
-            (if name_fig is left to None, no figure is saved)
+    # Args
+        moments: moments from the experiment
+        use_tex: whether latex is used in legends and annotations
+            (If set to True, a LaTeX distribution must be found)
+        name_fig: the figure is saved as figures/name_fig.pdf
+            (if left to None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 4.0), grid_spec=(1, 2), use_tex=use_tex)
 
@@ -131,24 +124,15 @@ def plot_vanilla(moments, use_tex=True, name_fig=None):
     save_figure(name_fig=name_fig)
 
 
-def plot_bn_ff(moments, use_tex=True, name_fig=None):
-    """plot_bn_ff
-    Plot containing 4 subplots for batch-normalized feedforward nets:
-        (a) delta chi^l decomposed as delta_BN chi^l * delta_phi chi^l
-        (b) chi^l
-        (c) The effective ranks: reff(dx^l), reff(x^l)
-        (c) The moments of the pre-activations: mu4(z^l), nu1(|z^l|)
-            (since z^l is standardized after batch norm, this enables to
-             see whether z^l is Gaussian with e.g. deviation of mu4(z^l)
-             from the Gaussian kurtosis of 3)
+def plot_bn_ff(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+    """Plot containing 4 subplots for batch-normalized feedforward nets.
 
-    # Arguments
-        moments (dict): moments from the experiment
-        use_tex (bool): whether latex is used in legends and annotations
-            (If use_tex = True and no LaTeX distribution is found,
-             python will crash)
-        name_fig (str): the figure is saved as figures/name_fig.pdf
-            (if name_fig is left to None, no figure is saved)
+    # Args
+        moments: moments from the experiment
+        use_tex: whether latex is used in legends and annotations
+            (if True, a LaTeX distribution must be found)
+        name_fig: the figure is saved as figures/name_fig.pdf
+            (if None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 8.5), grid_spec=(2, 2), use_tex=use_tex)
 
@@ -252,31 +236,15 @@ def plot_bn_ff(moments, use_tex=True, name_fig=None):
     save_figure(name_fig=name_fig)
 
 
-def plot_bn_res(moments, use_tex=True, name_fig=None):
-    """plot_bn_res
-    Plot containing 4 subplots for batch-normalized resets
-        with the depth evolution of:
-        (a) delta chi^{l,1} decomposed as
-            delta_BN chi^{l,1} * delta_phi chi^{l,1}
-        (b) chi^l and the power-law fit l^tau
-                - the power tau is obtained by averaging delta chi^{l,1} over
-                all realizations and all depth l
-                - alternatively, we could have computed a pow-law fit
-                per-realization and taken the average over all realizations.
-                This would have led to an even better fit.
-        (c) The effective ranks reff(dx^{l,1}), reff(x^{l,1})
-        (c) The moments of the pre-activations: mu4(z^{l,1}), nu1(|z^{l,1}|)
-            (again since z^{l,1} is standardized after batch norm,
-            this enables to see whether z^{l,1} is Gaussian with e.g.
-            deviation of mu4(z^{l,1}) from the Gaussian kurtosis of 3)
+def plot_bn_res(moments: dict[str, np.ndarray], use_tex: bool = True, name_fig: str | None = None):
+    """Plot containing 4 subplots for batch-normalized feedforward ResNets.
 
-    # Arguments
-        moments (dict): moments from the experiment
-        use_tex (bool): whether latex is used in legends and annotations
-            (If use_tex = True and no LaTeX distribution is found,
-             python will crash)
-        name_fig (str): the figure is saved as figures/name_fig.pdf
-            (if name_fig is left to None, no figure is saved)
+    # Args
+        moments: moments from the experiment
+        use_tex: whether latex is used in legends and annotations
+            (if True, a LaTeX distribution must be found)
+        name_fig: the figure is saved as figures/name_fig.pdf
+            (if None, no figure is saved)
     """
     fig, gs = set_plot(fig_size=(16.5, 8.5), grid_spec=(2, 2), use_tex=use_tex)
 

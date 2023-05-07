@@ -1,6 +1,8 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+from matplotlib.gridspec import GridSpec
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 import os
 import numpy as np
@@ -10,10 +12,10 @@ import warnings
 warnings.filterwarnings("ignore")  # remove matplotlib warnings
 
 
-def save_figure(name_fig=None):
-    """save_figure
-    Save figure in pdf in figures/pdf/name_fig.pdf
-    Save figure in png in figures/png/name_fig.png
+def save_figure(name_fig: bool = None):
+    """Save_figure.
+    
+    Either save in pdf in figures/pdf/name_fig.pdf, or in png in figures/png/name_fig.png.
     """
     if name_fig is not None:
         file_folder = os.path.dirname(__file__)
@@ -28,16 +30,15 @@ def save_figure(name_fig=None):
         plt.savefig(path, bbox_inches="tight")
 
 
-def set_plot(fig_size, grid_spec, use_tex=False):
-    """set_style
-    Set seaborn style for plots
-    Create a figure of size fig_size
-    Create a grid specified by grid_spec
-        -> (2, 2) for a grid 2 x 2 (i.e. 2 lines, 2 columns)
-        -> (1, 2) for a grid 1 x 2 (i.e. 1 line, 2 columns)
-
-    # Arguments
-        use_latex (bool): whether latex is enabled for legends
+def set_plot(fig_size: tuple[int, int], grid_spec: tuple[int, int], use_tex: bool = False) -> tuple[Figure, GridSpec]:
+    """Set seaborn style for plots.
+    
+    # Args
+        fig_size: size of figure
+        grid_spec: grid specification
+            -> (2, 2) for a grid 2 x 2 (i.e. 2 lines, 2 columns)
+            -> (1, 2) for a grid 1 x 2 (i.e. 1 line, 2 columns)
+        use_latex: whether latex is enabled for legends
     """
     sns.set_style(
         "whitegrid",
@@ -55,15 +56,14 @@ def set_plot(fig_size, grid_spec, use_tex=False):
         plt.rc("text.latex", preamble=r"\usepackage{amsmath}")
 
     fig = plt.figure(figsize=fig_size)
-    gs = gridspec.GridSpec(grid_spec[0], grid_spec[1])
+    gs = GridSpec(grid_spec[0], grid_spec[1])
     return fig, gs
 
 
-def draw_line(ax, depth, value):
-    """draw_line
-    Draw thin black dashed line to compare moments curves with a reference
+def draw_line(ax: Axes, depth: np.ndarray, value: float | int):
+    """Draw thin black dashed line to compare moments curves with a reference.
 
-    # Arguments
+    # Args
         ax (axis): axis used for plot
         depth (numpy array): numpy array with depth values
         value (float): constant value drawn as reference
@@ -72,36 +72,35 @@ def draw_line(ax, depth, value):
 
 
 def plot_moments(
-    ax,
-    depth,
-    moments,
-    colors,
-    labels,
-    linestyles=None,
-    linewidths=None,
-    ncol=1,
-    loc="best",
-    bbox_to_anchor=None,
-    yrange=None,
-    log_scale=False,
+    ax: Axes,
+    depth: np.ndarray,
+    moments: dict[str, np.ndarray],
+    colors: list[str],
+    labels: list[str],
+    linestyles: list[str] | None = None,
+    linewidths: list[int] | None = None,
+    ncol: int = 1,
+    loc: str = "best",
+    bbox_to_anchor: tuple[float, float] | None = None,
+    yrange: list[float] | None = None,
+    log_scale: bool = False,
 ):
-    """plot_moments
-    Plot a list of moments on a given axis
+    """Plot list of moments on a given axis.
 
-    # Arguments
-        ax (axis): axis used for the plot
-        depth (numpy array): numpy array with depth values
-        moments (dict): moments
-        colors (list): colors for each moment (try to get sns color)
-        labels (list): labels corresponding to each moment
-        linestyles (list): linestyles corresponding to each moment
-        linewidths (list): linewidths corresponding to each moment
-        ncol (int): number of columns in the legend
-        loc (str): location of the legend (default is 'best')
-        bbox_to_anchor (tuple): set the part of the bounding box defined by loc
+    # Args
+        ax: axis used for the plot
+        depth: numpy array with depth values
+        moments: moments
+        colors: colors for each moment (try to get sns color)
+        labels: labels corresponding to each moment
+        linestyles: linestyles corresponding to each moment
+        linewidths: linewidths corresponding to each moment
+        ncol: number of columns in the legend
+        loc: location of the legend (default is 'best')
+        bbox_to_anchor: set the part of the bounding box defined by loc
             at position (x, y) (if None, loc simply defines the legend's loc)
-        yrange (list of 2 values): range of y (if None, use default range)
-        log_scale (bool): whether to use log scale or normal scale
+        yrange: range of y (if None, use default range)
+        log_scale: whether to use log scale or normal scale
     """
     num_moments = len(moments)
     linestyles = ["-"] * num_moments if linestyles is None else linestyles
@@ -153,19 +152,23 @@ def plot_moments(
         plt.ylim(yrange)
 
 
-def plot_histo(ax, moment, xfac, yfac, labels, annotation, xannotation):
-    """plot_histo
-    Plot histogram of moments at four different depths
-    Customized to the experiments on histograms of vanilla nets
+def plot_histo(ax: Axes, 
+               moment: np.ndarray, 
+               xfac: list[float], 
+               yfac: float, 
+               labels: list[str],
+               annotation: str,
+               xannotation: float):
+    """Plot histogram of moments at four different depths.
 
-    # Arguments
-        ax (axis): axis used for plot
-        moment (numpy array): moment realizations at various depths
-        xfac (list of 2 values): factor of expansion of the x-axis
-        yfac (float): factor of expansion of the y-axis
-        labels (list): labels for legend
-        annotation (str): complementary annotation with the name of the moment
-        xannotation (float): position on the x-axis of complementary annotation
+    # Args
+        ax: axis used for plot
+        moment: moments from all simulations at various depths
+        xfac: factors of expansion of the x-axis
+        yfac: factor of expansion of the y-axis
+        labels: labels for legend
+        annotation: complementary annotation with the name of the moment
+        xannotation: position on the x-axis of complementary annotation
     """
     bins0, histo0 = make_histo(moment[:, 0])
     bins1, histo1 = make_histo(moment[:, 1])
@@ -212,16 +215,17 @@ def plot_histo(ax, moment, xfac, yfac, labels, annotation, xannotation):
     )
 
 
-def make_histo(moment):
-    """make_histo
-    Compute histogram of the logarithm of moments at given depth
-    First we get the results from np.histogram
-    Second we convert bin edges to centered bins
-    Finally we convert the histogram to a density (this last step
-        does not matter for our plots since we do not show the y-ticks)
+def make_histo(moment: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Compute histogram of the logarithm of moments at given depth.
+    
+    Steps:
+        - Get the results from np.histogram
+        - Convert bin edges to centered bins
+        - Convert the histogram to a density 
+        (this step does not matter for our plots since we do not show the y-ticks)
 
-    # Arguments
-        moment (numpy array): all moment realizations at given depth
+    # Args
+        moment: moments from all simulations at a given depth
     """
     moment = np.log(moment)
     histo, bins = np.histogram(moment, bins=50)

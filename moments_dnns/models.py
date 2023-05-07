@@ -11,49 +11,46 @@ from moments_dnns.propagation_layers import ActivationLayer, AddLayer
 from moments_dnns.computation_layers import MomentsLayer, RescaleLayer
 
 
-def init_original_model(
-    original_size,
-    kernel_size,
-    original_channels,
-    num_channels,
-    boundary,
-    original_strides,
-):
-    """init_original_model
-    Construct the model performing the original convolution
-        from (original_size, original_size, original_channels)
-        to (original_size // original_strides,
-            original_size // original_strides,
-            num_channels)
-    The convolution is initialized with 'LeCun normal' since no ReLU follows
-    When kernel_size > 1, original_strides = 2 to reduce spatial extent
-    When kernel_size = 1, original_strides = 1 since images already
-        have spatial size equal to 1
+def init_orig_model(
+    orig_size: int,
+    kernel_size: int,
+    orig_channels: int,
+    num_channels: int,
+    boundary: str,
+    orig_strides: int,
+) -> Model:
+    """Initialize model performing an original convolution 
+        from (orig_size, orig_size, orig_channels)
+        to (orig_size // orig_strides, orig_size // orig_strides, num_channels).
 
-    # Arguments
-        original_size (int): spatial extent of original images
-        kernel_size (int): spatial extent of convolutional kernel
-        original_channels (int): number of channels in original images
-        num_channels (int): number of channels in the propagated tensors
-        boundary (str): boundary conditions
-        original_strides (int): strides of convolution
+    The convolution is initialized with 'LeCun normal' since no ReLU follows.
+    When kernel_size > 1, orig_strides = 2 to reduce spatial extent.
+    When kernel_size = 1, orig_strides = 1 since images already have spatial size of 1.
+
+    # Args
+        orig_size: spatial extent of original images
+        kernel_size: spatial extent of convolutional kernel
+        orig_channels: number of channels in original images
+        num_channels: number of channels in the propagated tensors
+        boundary: boundary conditions
+        orig_strides: strides of convolution
 
     # Returns
         [signal, noise]
     """
-    original_shape = (original_size, original_size, original_channels)
-    signal = Input(shape=original_shape)
-    noise = Input(shape=original_shape)
+    orig_shape = (orig_size, orig_size, orig_channels)
+    signal = Input(shape=orig_shape)
+    noise = Input(shape=orig_shape)
     inputs = [signal, noise]
 
     # convolutional layer, initialized with 'LeCun normal'
     conv_layer = ConvLayer(
-        input_size=original_size,
+        input_size=orig_size,
         kernel_size=kernel_size,
-        input_channels=original_channels,
+        input_channels=orig_channels,
         output_channels=num_channels,
         boundary=boundary,
-        strides=original_strides,
+        strides=orig_strides,
         fac_weigths=1.0,
     )
     signal, noise = conv_layer([signal, noise])
@@ -63,43 +60,37 @@ def init_original_model(
 
 
 def init_ff_model(
-    spatial_size,
-    kernel_size,
-    num_channels,
-    boundary,
-    sub_depth,
-    delta_moments,
-    name_moments_raw,
-    epsilon=0.001,
-    batch_normalization=False,
-):
-    """init_ff_model
-    Construct feedforward model
+    spatial_size: int,
+    kernel_size: int,
+    num_channels: int,
+    boundary: str,
+    sub_depth: int,
+    delta_moments: int,
+    name_moments: list[str],
+    epsilon: float = 0.001,
+    batch_norm: bool = False,
+) -> Model:
+    """Initialize feedforward model.
 
     # Computations
-        - every delta_moments layers
-        - locs vanilla: 'loc1' -> Conv -> 'loc2' -> Activation -> 'loc3'
-        - locs bn_ff: 'loc1' -> Conv -> 'loc2' -> BN -> 'loc3'
-            -> Activation -> 'loc4'
-        - reff is only computed after activation, else it is set to -1
+        - Every delta_moments layers
+        - Locs vanilla: 'loc1' -> Conv -> 'loc2' -> Activation -> 'loc3'
+        - Locs bn_ff: 'loc1' -> Conv -> 'loc2' -> BN -> 'loc3' -> Activation -> 'loc4'
+        - Effective rank is only computed after activation, else it is set to -1
             since it is not needed for the plots
 
-    # Arguments
-        spatial_size (int): spatial extent of propagated tensors
-        kernel_size (int): spatial extent of convolutional kernel
-        num_channels (int): number of channels in the propagated tensors
-        boundary (str): boundary conditions 'periodic' or 'symmetric'
+    # Args
+        spatial_size: spatial extent of propagated tensors
+        kernel_size: spatial extent of convolutional kernel
+        num_channels: number of channels in the propagated tensors
+        boundary: boundary conditions 'periodic' or 'symmetric'
             or 'zero_padding'
-        sub_depth (int): number of layers inside submodel
-        delta_moments (int): interval between computation of moments
-        name_moments_raw (list): names of raw moments to be computed
-        epsilon (float): batch normalization fuzz factor
-            (only relevant if batch_normalization = True)
-        batch_normalization (bool): True for 'bn_ff', False for 'vanilla'
-
-    # Returns
-        [signal, noise, log_noise]
-        moments_raw (list): all moments computed in this submodel
+        sub_depth: number of layers inside submodel
+        delta_moments: interval between computation of moments
+        name_moments: names of raw moments to be computed
+        epsilon: fuzz factor of Batch Norm
+            (only relevant if batch_norm = True)
+        batch_norm: True for 'bn_ff', False for 'vanilla'
     """
     input_shape = (spatial_size, spatial_size, num_channels)
     signal = Input(shape=input_shape)
@@ -107,15 +98,15 @@ def init_ff_model(
     log_noise = Input(shape=(1,) * 3)
     inputs = [signal, noise, log_noise]
 
-    moments_raw = []  # list of output moments
+    moments = []  # list of output moments
     for ilayer in range(1, sub_depth + 1):
         # instantiate layers
-        moments_computation = (ilayer % delta_moments) == 0
+        compute_moments = (ilayer % delta_moments) == 0
         moments_layer = MomentsLayer(
-            name_moments_raw, moments_computation, reff_computation=False
+            name_moments, compute_moments, compute_reff=False
         )
         reff_moments_layer = MomentsLayer(
-            name_moments_raw, moments_computation, reff_computation=True
+            name_moments, compute_moments, compute_reff=True
         )
         conv_layer = ConvLayer(
             input_size=spatial_size,
@@ -130,49 +121,49 @@ def init_ff_model(
         rescale_layer = RescaleLayer()
 
         # 'loc1' moments
-        moments_raw += moments_layer([signal, noise, log_noise])
+        moments += moments_layer([signal, noise, log_noise])
 
         # convolution step
         signal, noise = conv_layer([signal, noise])
 
         # 'loc2' moments
-        moments_raw += moments_layer([signal, noise, log_noise])
+        moments += moments_layer([signal, noise, log_noise])
 
-        if batch_normalization:
-            # batch normalization step
+        if batch_norm:
+            # batch norm step
             signal, noise = batch_norm_layer([signal, noise])
 
             # 'loc3' moments if batch norm is used
-            moments_raw += moments_layer([signal, noise, log_noise])
+            moments += moments_layer([signal, noise, log_noise])
 
         # activation step
         signal, noise = activation_layer([signal, noise])
 
         # 'loc4' moments if batch norm is used, otherwise 'loc3' moments
         # only location where we really compute reff
-        moments_raw += reff_moments_layer([signal, noise, log_noise])
+        moments += reff_moments_layer([signal, noise, log_noise])
 
         # rescale to avoid overflow
         noise, log_noise = rescale_layer([noise, log_noise])
 
-    outputs = [signal, noise, log_noise] + moments_raw
+    outputs = [signal, noise, log_noise] + moments
     return Model(inputs=inputs, outputs=outputs)
 
 
 def init_res_model(
-    spatial_size,
-    kernel_size,
-    num_channels,
-    boundary,
-    sub_depth,
-    res_depth,
-    delta_moments,
-    name_moments_raw,
-    epsilon=0.001,
-):
-    """init_res_model
-    Construct resnet model
-    For each residual unit, residual branch goes through res_depth ff layers
+    spatial_size: int,
+    kernel_size: int,
+    num_channels: int,
+    boundary: str,
+    sub_depth: int,
+    res_depth: int,
+    delta_moments: int,
+    name_moments: list[str],
+    epsilon: float = 0.001,
+) -> Model:
+    """Initialize ResNet model.
+
+    For each residual unit, residual branch goes through res_depth feedforward layers.
 
     # Computations
         - every delta_moments residual units, in the first ff layer
@@ -182,20 +173,16 @@ def init_res_model(
         - only compute reff after activation, else bypass and return -1
         - rescale noise when branches are merged
 
-    # Arguments
-        spatial_size (int): spatial extent of propagated tensors
-        kernel_size (int): spatial extent of convolutional kernel
-        num_channels (int): number of channels
-        boundary (str): boundary conditions
-        sub_depth (int): number of residual units in the submodel
-        res_depth (int): total ff depth in each residual unit
-        delta_moments (int): interval between computation of moments
-        name_moments_raw (list): names of raw moments to be computed
-        epsilon (float): fuzz factor of batch normalization
-
-    # Returns
-        [signal, noise, log_noise]
-        moments_raw: all moments computed in this submodel
+    # Args
+        spatial_size: spatial extent of propagated tensors
+        kernel_size: spatial extent of convolutional kernel
+        num_channels: number of channels
+        boundary: boundary conditions
+        sub_depth: number of residual units in the submodel
+        res_depth: total ff depth in each residual unit
+        delta_moments: interval between computation of moments
+        name_moments: names of raw moments to be computed
+        epsilon: fuzz factor of Batch Norm
     """
     input_shape = (spatial_size, spatial_size, num_channels)
     signal = Input(shape=input_shape)
@@ -203,7 +190,7 @@ def init_res_model(
     log_noise = Input(shape=(1,) * 3)
     inputs = [signal, noise, log_noise]
 
-    moments_raw = []  # list of output moments
+    moments = []  # list of output moments
     for ilayer in range(1, sub_depth + 1):
         # skip-connection branch
         signal_skip, noise_skip = signal, noise
@@ -211,13 +198,13 @@ def init_res_model(
         # residual branch
         for ires in range(1, res_depth + 1):
             # instantiate layers
-            moments_computation_unit = (ilayer % delta_moments) == 0
-            moments_computation_res = moments_computation_unit and (ires == 1)
+            compute_moments_unit = (ilayer % delta_moments) == 0
+            compute_moments_res = compute_moments_unit and (ires == 1)
             moments_layer = MomentsLayer(
-                name_moments_raw, moments_computation_res, reff_computation=False
+                name_moments, compute_moments_res, compute_reff=False
             )
             reff_moments_layer = MomentsLayer(
-                name_moments_raw, moments_computation_res, reff_computation=True
+                name_moments, compute_moments_res, compute_reff=True
             )
             conv_layer = ConvLayer(
                 input_size=spatial_size,
@@ -231,48 +218,48 @@ def init_res_model(
             activation_layer = ActivationLayer()
 
             # 'loc1' moments
-            moments_raw += moments_layer([signal, noise, log_noise])
+            moments += moments_layer([signal, noise, log_noise])
 
-            # batch normalization step
+            # batch norm step
             signal, noise = batch_norm_layer([signal, noise])
 
             # 'loc2' moments
-            moments_raw += moments_layer([signal, noise, log_noise])
+            moments += moments_layer([signal, noise, log_noise])
 
             # activation step
             signal, noise = activation_layer([signal, noise])
 
             # 'loc3' moments, only location where we really compute reff
-            moments_raw += reff_moments_layer([signal, noise, log_noise])
+            moments += reff_moments_layer([signal, noise, log_noise])
 
             # convolution step
             signal, noise = conv_layer([signal, noise])
 
             # loc4' moments
-            moments_raw += moments_layer([signal, noise, log_noise])
+            moments += moments_layer([signal, noise, log_noise])
 
         # merge branches
         signal, noise = AddLayer()([signal, noise, signal_skip, noise_skip])
 
         # 'loc5' moments
         moments_layer = MomentsLayer(
-            name_moments_raw, moments_computation_unit, reff_computation=False
+            name_moments, compute_moments_unit, compute_reff=False
         )
-        moments_raw += moments_layer([signal, noise, log_noise])
+        moments += moments_layer([signal, noise, log_noise])
 
         # rescale to avoid overflow (must happen when all branches are merged)
         noise, log_noise = RescaleLayer()([noise, log_noise])
 
-    outputs = [signal, noise, log_noise] + moments_raw
+    outputs = [signal, noise, log_noise] + moments
     return Model(inputs=inputs, outputs=outputs)
 
 
-def reset_model(model):
-    """reset_model
-    Reinitialize model
+def reset_model(model: Model):
+    """Reinitialize model parameters.
+
     Since only convolutional layers contain random parameters in our analysis:
         - Loop through all layers
-        - reinitialize 'kernel' attribute of each convolutional layer
+        - Reinitialize 'kernel' attribute of each convolutional layer
     """
     for layer in model.layers:
         for k, initializer in layer.__dict__.items():

@@ -3,19 +3,19 @@ import os
 import shutil
 
 
-def merge_experiments(name_experiments, name_merged):
-    """merge_experiments
-    Merge the results of different experiments
-    Assert that:
-        - All moment names coincide
-        - Depth values coincide
+def merge_experiments(name_experiments: list[str], name_merged: str):
+    """Merge the results of different experiments.
 
-    # Arguments
-        name_experiments (list): names of experiments to merge
-        name_merged (str): name of the merged experiments
+    Assert that:
+        - All moment names match
+        - Depth values match
+
+    # Args
+        name_experiments: names of experiments to merge
+        name_merged: name of the merged experiments
 
     # Returns
-        moments (dict): moments of the merged experiments
+        moments: dictionary of moments of merged experiments
     """
     moments = {}
     for iexperiment, name_experiment in enumerate(name_experiments):
@@ -35,15 +35,15 @@ def merge_experiments(name_experiments, name_merged):
     save_experiment(moments, name_merged)
 
 
-def prune_experiment(type_plot, name_experiment):
-    """prune_experiment
-    Only keep moments relevant for a given plot
-    This function is used to limit disk space taken by .npy results
+def prune_experiment(type_plot: str, name_experiment: str):
+    """Only keep moments relevant for a given plot/
 
-    # Arguments
-        type_plot (str): type of plot corresponding to the pruning
+    This function is used to limit disk space taken by .npy results.
+
+    # Args
+        type_plot: type of plot corresponding to the pruning
             ('vanilla_histo' or 'vanilla' or 'bn_ff' or 'bn_res')
-        name_experiment (str): name of the experiment
+        name_experiment: name of the experiment
     """
     assert type_plot in ["vanilla_histo", "vanilla", "bn_ff", "bn_res"]
 
@@ -86,14 +86,14 @@ def prune_experiment(type_plot, name_experiment):
     save_experiment(moments, name_experiment)
 
 
-def save_experiment(moments, name_experiment):
-    """save_experiment
-    Save moments in directory npy/name_experiment/
-    If directory already exists, it is deleted and created again
+def save_experiment(moments: dict[str, np.ndarray], name_experiment: str):
+    """Save moments in npy/name_experiment/.
+
+    If directory already exists, it is deleted and re-created.
 
     # Arguments
-        moments (dict): moments of the experiment
-        name_experiment (str): name of the experiment
+        moments: moments of the experiment
+        name_experiment: name of the experiment
     """
     file_folder = os.path.dirname(__file__)
     npy_folder = os.path.join(file_folder, os.pardir, "npy")
@@ -109,15 +109,11 @@ def save_experiment(moments, name_experiment):
         np.save(path_file, moment)
 
 
-def load_experiment(name_experiment):
-    """load_experiment
-    Load moments from directory: npy/name_experiment/
+def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
+    """Load moments from npy/name_experiment/.
 
-    # Arguments
-        name_experiment (str): name of the experiment
-
-    # Returns
-        moments (dict): moments of the experiment
+    # Args
+        name_experiment: name of the experiment
     """
     file_folder = os.path.dirname(__file__)
     npy_folder = os.path.join(file_folder, os.pardir, "npy")
