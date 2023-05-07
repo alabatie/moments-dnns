@@ -1,3 +1,4 @@
+"""Utils to plot."""
 import warnings
 from pathlib import Path
 
@@ -56,29 +57,29 @@ def set_plot(
         plt.rc("text.latex", preamble=r"\usepackage{amsmath}")
 
     fig = plt.figure(figsize=fig_size)
-    gs = GridSpec(grid_spec[0], grid_spec[1])
-    return fig, gs
+    grid_spec = GridSpec(grid_spec[0], grid_spec[1])
+    return fig, grid_spec
 
 
-def draw_line(ax: Axes, depth: np.ndarray, value: float | int):
+def draw_line(axis: Axes, depth: np.ndarray, value: float | int):
     """Draw thin black dashed line to compare moments curves with a reference.
 
     # Args
-        ax (axis): axis used for plot
-        depth (numpy array): numpy array with depth values
-        value (float): constant value drawn as reference
+        axis: axis used for plot
+        depth: numpy array with depth values
+        value: constant value drawn as reference
     """
-    ax.plot(depth, np.full_like(depth, value), ls="--", color="k", lw=1)
+    axis.plot(depth, np.full_like(depth, value), ls="--", color="k", lw=1)
 
 
 def plot_moments(
-    ax: Axes,
+    axis: Axes,
     depth: np.ndarray,
     moments: dict[str, np.ndarray],
     colors: list[str],
     labels: list[str],
-    linestyles: list[str] | None = None,
-    linewidths: list[int] | None = None,
+    line_styles: list[str] | None = None,
+    line_widths: list[int] | None = None,
     ncol: int = 1,
     loc: str = "best",
     bbox_to_anchor: tuple[float, float] | None = None,
@@ -88,13 +89,13 @@ def plot_moments(
     """Plot list of moments on a given axis.
 
     # Args
-        ax: axis used for the plot
+        axis: axis used for the plot
         depth: numpy array with depth values
         moments: moments
         colors: colors for each moment (try to get sns color)
         labels: labels corresponding to each moment
-        linestyles: linestyles corresponding to each moment
-        linewidths: linewidths corresponding to each moment
+        line_styles: line styles corresponding to each moment
+        line_widths: line widths corresponding to each moment
         ncol: number of columns in the legend
         loc: location of the legend (default is 'best')
         bbox_to_anchor: set the part of the bounding box defined by loc
@@ -102,38 +103,46 @@ def plot_moments(
         yrange: range of y (if None, use default range)
         log_scale: whether to use log scale or normal scale
     """
+    # pylint: disable=too-many-arguments
     num_moments = len(moments)
-    linestyles = ["-"] * num_moments if linestyles is None else linestyles
-    linewidths = [4] * num_moments if linewidths is None else linewidths
+    line_styles = ["-"] * num_moments if line_styles is None else line_styles
+    line_widths = [4] * num_moments if line_widths is None else line_widths
     colors = [
         sns.xkcd_rgb[color] if color in sns.xkcd_rgb else color for color in colors
     ]
 
-    for moment, color, ls, lw, label in zip(
-        moments, colors, linestyles, linewidths, labels
+    for moment, color, line_style, line_width, label in zip(
+        moments, colors, line_styles, line_widths, labels
     ):
         if moment.ndim > 1:
             # if more than 1 dimensions, also plot 1 sigma intervals
-            ax.plot(
-                depth, np.mean(moment, axis=0), ls=ls, lw=lw, color=color, label=label
+            axis.plot(
+                depth,
+                np.mean(moment, axis=0),
+                ls=line_style,
+                lw=line_width,
+                color=color,
+                label=label,
             )
-            ax.fill_between(
+            axis.fill_between(
                 depth,
                 np.percentile(moment, 16, axis=0),
                 np.percentile(moment, 84, axis=0),
                 color=color,
                 alpha=0.1,
             )
-            ax.plot(
+            axis.plot(
                 depth, np.percentile(moment, 16, axis=0), ls=":", color="grey", lw=0.7
             )
-            ax.plot(
+            axis.plot(
                 depth, np.percentile(moment, 84, axis=0), ls=":", color="grey", lw=0.7
             )
         else:
-            ax.plot(depth, moment, ls=ls, lw=lw, color=color, label=label)
+            axis.plot(
+                depth, moment, ls=line_style, lw=line_width, color=color, label=label
+            )
 
-    ax.tick_params(labelsize=18)
+    axis.tick_params(labelsize=18)
     plt.legend(
         fontsize=22,
         loc=loc,
@@ -153,7 +162,7 @@ def plot_moments(
 
 
 def plot_histo(
-    ax: Axes,
+    axis: Axes,
     moment: np.ndarray,
     xfac: list[float],
     yfac: float,
@@ -164,7 +173,7 @@ def plot_histo(
     """Plot histogram of moments at four different depths.
 
     # Args
-        ax: axis used for plot
+        axis: axis used for plot
         moment: moments from all simulations at various depths
         xfac: factors of expansion of the x-axis
         yfac: factor of expansion of the y-axis
@@ -177,18 +186,18 @@ def plot_histo(
     bins2, histo2 = make_histo(moment[:, 2])
     bins3, histo3 = make_histo(moment[:, 3])
 
-    ax.plot(bins0, histo0, lw=2.0, color=sns.xkcd_rgb["blue"])
-    ax.plot(bins1, histo1, lw=2.0, color=sns.xkcd_rgb["purple"])
-    ax.plot(bins2, histo2, lw=2.0, color=sns.xkcd_rgb["magenta"])
-    ax.plot(bins3, histo3, lw=2.0, color=sns.xkcd_rgb["red"])
+    axis.plot(bins0, histo0, lw=2.0, color=sns.xkcd_rgb["blue"])
+    axis.plot(bins1, histo1, lw=2.0, color=sns.xkcd_rgb["purple"])
+    axis.plot(bins2, histo2, lw=2.0, color=sns.xkcd_rgb["magenta"])
+    axis.plot(bins3, histo3, lw=2.0, color=sns.xkcd_rgb["red"])
 
     # expand xlim and ylim
-    ax.set_ylim(0, yfac * ax.get_ylim()[1])
-    ax.set_xlim(xfac[0] * ax.get_xlim()[0], xfac[1] * ax.get_xlim()[1])
-    ax.set_yticklabels([])  # remove y ticks
+    axis.set_ylim(0, yfac * axis.get_ylim()[1])
+    axis.set_xlim(xfac[0] * axis.get_xlim()[0], xfac[1] * axis.get_xlim()[1])
+    axis.set_yticklabels([])  # remove y ticks
 
     # set legend
-    ax.tick_params(labelsize=18)
+    axis.tick_params(labelsize=18)
     plt.legend(
         labels,
         fontsize=20,
@@ -200,20 +209,20 @@ def plot_histo(
     )
 
     # set annotation
-    ax.text(
+    axis.text(
         xannotation,
         0.86,
         annotation,
-        transform=ax.transAxes,
+        transform=axis.transAxes,
         fontsize=20,
         zorder=100,
-        bbox=dict(
-            alpha=1.0,
-            boxstyle="round",
-            edgecolor=plt.rcParams["axes.facecolor"],
-            facecolor=plt.rcParams["axes.facecolor"],
-            pad=0.3,
-        ),
+        bbox={
+            "alpha": 1.0,
+            "boxstyle": "round",
+            "edgecolor": plt.rcParams["axes.facecolor"],
+            "facecolor": plt.rcParams["axes.facecolor"],
+            "pad": 0.3,
+        },
     )
 
 

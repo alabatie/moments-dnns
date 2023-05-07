@@ -1,14 +1,14 @@
-from silence_tensorflow import silence_tensorflow
-
-silence_tensorflow()
-
-import tensorflow as tf
+"""Model initialization and management."""
 from tensorflow.python.keras.layers import Input
 from tensorflow.python.keras.models import Model
 
 from moments_dnns.computation_layers import MomentsLayer, RescaleLayer
-from moments_dnns.propagation_layers import (ActivationLayer, AddLayer,
-                                             BatchNormLayer, ConvLayer)
+from moments_dnns.propagation_layers import (
+    ActivationLayer,
+    AddLayer,
+    BatchNormLayer,
+    ConvLayer,
+)
 
 
 def init_orig_model(
@@ -114,9 +114,6 @@ def init_ff_model(
             boundary=boundary,
             strides=1,
         )
-        batch_norm_layer = BatchNormLayer(epsilon)
-        activation_layer = ActivationLayer()
-        rescale_layer = RescaleLayer()
 
         # 'loc1' moments
         moments += moments_layer([signal, noise, log_noise])
@@ -129,20 +126,20 @@ def init_ff_model(
 
         if batch_norm:
             # batch norm step
-            signal, noise = batch_norm_layer([signal, noise])
+            signal, noise = BatchNormLayer(epsilon)([signal, noise])
 
             # 'loc3' moments if batch norm is used
             moments += moments_layer([signal, noise, log_noise])
 
         # activation step
-        signal, noise = activation_layer([signal, noise])
+        signal, noise = ActivationLayer()([signal, noise])
 
         # 'loc4' moments if batch norm is used, otherwise 'loc3' moments
         # only location where we really compute reff
         moments += reff_moments_layer([signal, noise, log_noise])
 
         # rescale to avoid overflow
-        noise, log_noise = rescale_layer([noise, log_noise])
+        noise, log_noise = RescaleLayer()([noise, log_noise])
 
     outputs = [signal, noise, log_noise] + moments
     return Model(inputs=inputs, outputs=outputs)
@@ -212,20 +209,18 @@ def init_res_model(
                 boundary=boundary,
                 strides=1,
             )
-            batch_norm_layer = BatchNormLayer(epsilon)
-            activation_layer = ActivationLayer()
 
             # 'loc1' moments
             moments += moments_layer([signal, noise, log_noise])
 
             # batch norm step
-            signal, noise = batch_norm_layer([signal, noise])
+            signal, noise = BatchNormLayer(epsilon)([signal, noise])
 
             # 'loc2' moments
             moments += moments_layer([signal, noise, log_noise])
 
             # activation step
-            signal, noise = activation_layer([signal, noise])
+            signal, noise = ActivationLayer()([signal, noise])
 
             # 'loc3' moments, only location where we really compute reff
             moments += reff_moments_layer([signal, noise, log_noise])

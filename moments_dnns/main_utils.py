@@ -1,8 +1,9 @@
+"""Utils to run experiments."""
 import numpy as np
 import tensorflow as tf
 
 
-def make_asserts(
+def check_args(
     architecture: str,
     kernel_size: int,
     total_depth: int,
@@ -12,7 +13,7 @@ def make_asserts(
     dataset: str,
     batch_size: int,
 ):
-    """Assert that experiment constants are valid.
+    """Check that experiment's arguments are valid.
 
     # Conditions
         - kernel_size, num_channels, total_depth, batch_size must be integers
@@ -23,34 +24,32 @@ def make_asserts(
         - total depth must be a multiple of the number of moment computations
         - data format must be 'channels_last'
     """
-    assert (
-        (type(kernel_size) is int)
-        and (type(num_channels) is int)
-        and (type(total_depth) is int)
-        and (type(batch_size) is int)
-    ), "kernel_size, num_channels, total_depth, batch_size must be integers"
+    if not all(
+        isinstance(arg, int)
+        for arg in [kernel_size, num_channels, total_depth, batch_size]
+    ):
+        raise ValueError(
+            "kernel_size, num_channels, total_depth, and batch_size must be integers"
+        )
 
-    assert architecture in [
-        "vanilla",
-        "bn_ff",
-        "bn_res",
-    ], "architecture must be 'vanilla' or 'bn_ff' or 'bn_res'"
+    if architecture not in {"vanilla", "bn_ff", "bn_res"}:
+        raise ValueError("Architecture must be 'vanilla' or 'bn_ff' or 'bn_res'")
 
-    assert dataset in ["cifar10", "mnist"], "dataset must be 'cifar10' or 'mnist'"
+    if dataset not in {"cifar10", "mnist"}:
+        raise ValueError("Dataset must be 'cifar10' or 'mnist'")
 
-    assert boundary in [
-        "periodic",
-        "symmetric",
-        "zero_padding",
-    ], "boundary must be 'periodic' or 'symmetric' or 'zero_padding'"
+    if boundary not in {"periodic", "symmetric", "zero_padding"}:
+        raise ValueError("Boundary must be 'periodic' or 'symmetric' or 'zero_padding'")
 
-    assert not (
-        (boundary == "symmetric") and (kernel_size % 2 == 0)
-    ), "'symmetric' boundary only compatible with odd kernel size"
+    if boundary == "symmetric" and kernel_size % 2 == 0:
+        raise ValueError(
+            "Symmetric boundary conditions are only compatible with odd kernel size"
+        )
 
-    assert (
-        total_depth % num_computations == 0
-    ), "total depth must be a multiple of the number of moment computations"
+    if total_depth % num_computations != 0:
+        raise ValueError(
+            "Total depth must be a multiple of the number of moment computations"
+        )
 
 
 def get_submodel_constants(

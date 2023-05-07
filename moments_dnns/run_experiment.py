@@ -1,3 +1,4 @@
+"""Entrypoint to run experiments."""
 import inspect
 import logging
 
@@ -5,11 +6,19 @@ import fire
 import numpy as np
 from tqdm.auto import tqdm
 
-from moments_dnns.main_utils import (get_name_moments, get_submodel_constants,
-                                     load_dataset, make_asserts)
+from moments_dnns.main_utils import (
+    check_args,
+    get_name_moments,
+    get_submodel_constants,
+    load_dataset,
+)
 from moments_dnns.manage_experiments import save_experiment
-from moments_dnns.models import (init_ff_model, init_orig_model,
-                                 init_res_model, reset_model)
+from moments_dnns.models import (
+    init_ff_model,
+    init_orig_model,
+    init_res_model,
+    reset_model,
+)
 
 
 def run_experiment(
@@ -26,14 +35,13 @@ def run_experiment(
     res_depth: int = 2,
     num_computations: int = 100,
     numpy_seed: int = 0,
-    verbose: bool = True,
     compute_reff_signal: bool = True,
     compute_reff_noise: bool = True,
 ):
     """Entry point of the code to run experiments.
 
     # Steps
-        - Assert that experiment constants are valid
+        - Check that experiment arguments are valid
         - Load data
         - Get name of moments to be computed
         - Initialize Keras models
@@ -74,20 +82,21 @@ def run_experiment(
             - it does not lead to fully deterministic behaviour either,
                 but this is not a problem since we are only concerned
                 in expectations and 1-sigma intervals
-        verbose: whether parameter values are printed
         compute_reff_signal: whether reff is computed for the signal
         compute_reff_noise: whether reff is computed for the noise
     """
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
     # log arguments
     logger = logging.getLogger(__name__)
     frame = inspect.currentframe()
     args, _, _, param_values = inspect.getargvalues(frame)
     logger.info("Running experiment with parameters:")
     for name_param in args:
-        logger.info(f"{name_param} = {param_values[name_param]}")
+        logger.info("%s = %s", name_param, param_values[name_param])
 
-    # assertions
-    make_asserts(
+    # check that arguments are valid
+    check_args(
         architecture=architecture,
         kernel_size=kernel_size,
         num_channels=num_channels,
@@ -167,15 +176,10 @@ def run_experiment(
     np.random.seed(numpy_seed)
 
     # this dict will aggregate all moments from all simulations
-    moments_all = {}
-
-    # save depth associated with each computation of moments
-    moments_all["depth"] = (
-        total_depth // num_computations * np.arange(1, num_computations + 1)
-    )
-
-    # save res_depth (only relevant for resnets in the power law fit for plots)
-    moments_all["res_depth"] = res_depth
+    moments_all = {
+        "depth": total_depth // num_computations * np.arange(1, num_computations + 1),
+        "res_depth": res_depth,
+    }
 
     for _ in tqdm(range(num_sims)):
         # randomly sample original signal and noise
@@ -193,9 +197,9 @@ def run_experiment(
 
         # normalize with constant rescaling to have mu2_signal = 1
         # this later avoids the additional normalization mu2(x^0) in chi^l
-        mean_signal = np.mean(signal, axis=(0, 1, 2), keepdims=True)
-        std_signal = np.std(signal, axis=(0, 1, 2), keepdims=True)
-        signal = (signal - mean_signal) / std_signal
+        signal = (signal - signal.mean(axis=(0, 1, 2), keepdims=True)) / signal.std(
+            axis=(0, 1, 2), keepdims=True
+        )
 
         # pass original signal and noise through original model
         inputs = [signal, noise]

@@ -1,3 +1,4 @@
+"""Config logger."""
 import logging
 
 logging.basicConfig()

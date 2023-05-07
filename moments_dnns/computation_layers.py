@@ -1,3 +1,4 @@
+"""Layers of moment computation."""
 import tensorflow as tf
 from tensorflow.python.keras.layers import Layer
 
@@ -17,6 +18,7 @@ class MomentsLayer(Layer):
         'reff_signal': effective rank of signal
         'reff_noise': effective rank of noise
     """
+    # pylint: disable=abstract-method
 
     def __init__(
         self, name_moments: list[str], compute_moments: bool, compute_reff: bool
@@ -33,17 +35,19 @@ class MomentsLayer(Layer):
         self.num_moments = len(self.name_moments)
         self.compute_moments = compute_moments
         self.compute_reff = compute_reff
-        super(MomentsLayer, self).__init__()
+        super().__init__()
 
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
+        """Return output shapes."""
         return (
             [(None,) for _ in range(self.num_moments)] if self.compute_moments else []
         )
 
-    def compute_effective_rank(self, x: tf.Tensor) -> tf.Tensor:
+    def compute_effective_rank(self, input_tensor: tf.Tensor) -> tf.Tensor:
+        """Compute effective rank."""
         if self.compute_reff:
             # fetch feature vectors from every input x, dx and spatial position
-            feat_vecs = tf.reshape(x, (-1, tf.shape(x)[-1]))
+            feat_vecs = tf.reshape(input_tensor, (-1, tf.shape(input_tensor)[-1]))
             mean_feat_vecs = tf.reduce_mean(feat_vecs, axis=0, keepdims=True)
             centered_feat_vecs = feat_vecs - mean_feat_vecs
 
@@ -58,7 +62,9 @@ class MomentsLayer(Layer):
 
         return reff
 
-    def call(self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor]) -> tf.Tensor:
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tf.Tensor:
         signal, noise, log_noise = inputs
         moments = []  # stores all moments computed
         if self.compute_moments:
@@ -98,8 +104,9 @@ class RescaleLayer(Layer):
     Log of mu2_noise is stored in log_noise
         (this value is reused afterwards in the computation of moments)
     """
+    # pylint: disable=abstract-method
 
-    def call(self, inputs: tuple[tf.Tensor, tf.Tensor]):
+    def call(self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs):
         noise, log_noise = inputs
         mu2_noise = tf.reduce_mean(tf.pow(noise, 2), keepdims=True)
 

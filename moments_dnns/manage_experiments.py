@@ -1,3 +1,4 @@
+"""Utils to manage experiments."""
 import shutil
 from pathlib import Path
 
@@ -6,10 +7,6 @@ import numpy as np
 
 def merge_experiments(name_experiments: list[str], name_merged: str):
     """Merge the results of different experiments.
-
-    Assert that:
-        - All moment names match
-        - Depth values match
 
     # Args
         name_experiments: names of experiments to merge
@@ -25,7 +22,8 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
         if iexperiment == 0:
             moments = moments_experiment
         else:
-            assert np.allclose(moments["depth"], moments_experiment["depth"])
+            if not np.allclose(moments["depth"], moments_experiment["depth"]):
+                raise ValueError("Depth arrays do not match")
             del moments_experiment["depth"]
             for name_moment, moment_experiment in moments_experiment.items():
                 moments[name_moment] = np.vstack(
@@ -39,14 +37,15 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
 def prune_experiment(type_plot: str, name_experiment: str):
     """Only keep moments relevant for a given plot/
 
-    This function is used to limit disk space taken by .npy results.
+    This enables to limit disk space taken by .npy results.
 
     # Args
         type_plot: type of plot corresponding to the pruning
             ('vanilla_histo' or 'vanilla' or 'bn_ff' or 'bn_res')
         name_experiment: name of the experiment
     """
-    assert type_plot in ["vanilla_histo", "vanilla", "bn_ff", "bn_res"]
+    if type_plot not in {"vanilla_histo", "vanilla", "bn_ff", "bn_res"}:
+        raise ValueError(f"Unknown type of plot: {type_plot}")
 
     pruned_list = ["depth"]
     if type_plot == "vanilla_histo":

@@ -1,3 +1,4 @@
+"""Layers of propagation of signal and noise."""
 from math import sqrt
 
 import tensorflow as tf
@@ -17,6 +18,8 @@ class ConvLayer(Layer):
         -> Then use conv2d with padding = 'valid'
     Kernel is stored as attribute 'kernel' and reinitialized for every submodel.
     """
+
+    # pylint: disable=abstract-method
 
     def __init__(
         self,
@@ -55,25 +58,20 @@ class ConvLayer(Layer):
             self.input_channels,
             self.output_channels,
         )
-
         fan_in = self.input_channels * self.kernel_size**2
         std_weights = sqrt(fac_weigths / float(fan_in))
-        self.kernel_initializer = tf.compat.v1.keras.initializers.RandomNormal(
-            stddev=std_weights
-        )
-        super(ConvLayer, self).__init__()
-
-    def build(self, input_shape: tuple[int, int, int, int]):
-        # create kernel
         self.kernel = self.add_weight(
             shape=self.kernel_shape,
             name="kernel",
-            initializer=self.kernel_initializer,
+            initializer=tf.compat.v1.keras.initializers.RandomNormal(
+                stddev=std_weights
+            ),
             dtype=tf.float32,
         )
-        super(ConvLayer, self).build(input_shape)
+        super().__init__()
 
     def compute_output_shape(self, input_shape) -> list[tuple]:
+        """Return output shapes."""
         return [
             (
                 None,
@@ -83,35 +81,37 @@ class ConvLayer(Layer):
             )
         ] * 2
 
-    def pad_periodic(self, x: tf.Tensor) -> tf.Tensor:
-        # pad with periodic boundary conditions
+    def pad_periodic(self, in_tensor: tf.Tensor) -> tf.Tensor:
+        """Pad with periodic boundary conditions."""
         pad_size = self.kernel_size - 1
-        x = tf.concat([x[:, -pad_size:, :, :], x], axis=1)
-        x = tf.concat([x[:, :, -pad_size:, :], x], axis=2)
-        return x
+        out_tensor = tf.concat([in_tensor[:, -pad_size:, :, :], in_tensor], 1)
+        out_tensor = tf.concat([out_tensor[:, :, -pad_size:, :], out_tensor], 2)
+        return out_tensor
 
-    def pad_symmetric(self, x: tf.Tensor) -> tf.Tensor:
-        # pad with symmetric boundary conditions (kernel size must be odd)
+    def pad_symmetric(self, in_tensor: tf.Tensor) -> tf.Tensor:
+        """Pad with symmetric boundary conditions (kernel size must be odd)."""
         pad_size = (self.kernel_size - 1) // 2
-        x = tf.concat(
+        out_tensor = tf.concat(
             [
-                x[:, :pad_size, :, :][:, ::-1, :, :],
-                x,
-                x[:, -pad_size:, :, :][:, ::-1, :, :],
+                in_tensor[:, :pad_size, :, :][:, ::-1, :, :],
+                in_tensor,
+                in_tensor[:, -pad_size:, :, :][:, ::-1, :, :],
             ],
-            axis=1,
+            1,
         )
-        x = tf.concat(
+        out_tensor = tf.concat(
             [
-                x[:, :, :pad_size, :][:, :, ::-1, :],
-                x,
-                x[:, :, -pad_size:, :][:, :, ::-1, :],
+                out_tensor[:, :, :pad_size, :][:, :, ::-1, :],
+                out_tensor,
+                out_tensor[:, :, -pad_size:, :][:, :, ::-1, :],
             ],
-            axis=2,
+            2,
         )
-        return x
+        return out_tensor
 
-    def call(self, inputs: tuple[tf.Tensor, tf.Tensor]) -> tuple[tf.Tensor, tf.Tensor]:
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
         signal, noise = inputs
         if (self.boundary == "periodic") and (self.kernel_size > 1):
             signal = self.pad_periodic(signal)
@@ -141,6 +141,8 @@ class ConvLayer(Layer):
 class BatchNormLayer(Layer):
     """Batch Norm step in the simultaneous propagation of signal and noise."""
 
+    # pylint: disable=abstract-method
+
     def __init__(self, epsilon: float):
         """Initialize layer.
 
@@ -148,9 +150,11 @@ class BatchNormLayer(Layer):
             epsilon: fuzz factor of Batch Norm
         """
         self.epsilon = epsilon
-        super(BatchNormLayer, self).__init__()
+        super().__init__()
 
-    def call(self, inputs: tuple[tf.Tensor, tf.Tensor]) -> tuple[tf.Tensor, tf.Tensor]:
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
         signal, noise = inputs
         mean_signal = tf.reduce_mean(signal, axis=(0, 1, 2), keepdims=True)
         centered_signal = signal - mean_signal
@@ -168,7 +172,11 @@ class BatchNormLayer(Layer):
 class ActivationLayer(Layer):
     """Activation step in the simultaneous propagation of signal and noise."""
 
-    def call(self, inputs: tuple[tf.Tensor, tf.Tensor]) -> tuple[tf.Tensor, tf.Tensor]:
+    # pylint: disable=abstract-method
+
+    def call(
+        self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
+    ) -> tuple[tf.Tensor, tf.Tensor]:
         signal, noise = inputs
         signal_diff = tf.cast(tf.math.greater(signal, 0), tf.float32)
 
@@ -180,11 +188,13 @@ class ActivationLayer(Layer):
 class AddLayer(Layer):
     """Addition step in the simultaneous propagation of signal and noise."""
 
+    # pylint: disable=abstract-method
+
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
         return input_shape[:2]
 
     def call(
-        self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor]
+        self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tuple[tf.Tensor, tf.Tensor]:
         signal, noise, signal_skip, noise_skip = inputs
         signal = signal + signal_skip
