@@ -1,5 +1,5 @@
-from tensorflow.keras.datasets import cifar10, mnist
-import tensorflow.keras.backend as K
+import tensorflow as tf
+import tensorflow.python.keras.backend as K
 
 import numpy as np
 
@@ -166,9 +166,9 @@ def load_dataset(dataset, kernel_size):
         original_channels (int): number of channels in original images
     """
     if dataset == "cifar10":
-        (signal_original, _), (_, _) = cifar10.load_data()
+        (signal_original, _), (_, _) = tf.keras.datasets.cifar10.load_data()
     elif dataset == "mnist":
-        (signal_original, _), (_, _) = mnist.load_data()
+        (signal_original, _), (_, _) = tf.keras.datasets.mnist.load_data()
         signal_original = np.expand_dims(signal_original, -1)
     else:
         raise NotImplementedError()

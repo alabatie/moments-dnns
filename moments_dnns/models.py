@@ -3,8 +3,8 @@ from silence_tensorflow import silence_tensorflow
 silence_tensorflow()
 
 import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input
+from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.layers import Input
 
 from moments_dnns.propagation_layers import ConvLayer, BatchNormLayer
 from moments_dnns.propagation_layers import ActivationLayer, AddLayer

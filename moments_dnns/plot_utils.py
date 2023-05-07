@@ -1,5 +1,4 @@
 import seaborn as sns
-from matplotlib import rc, rcParams
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -50,10 +49,10 @@ def set_plot(fig_size, grid_spec, use_tex=False):
         },
     )
 
-    rc("font", **{"family": "serif", "serif": ["Palatino"]})
+    plt.rc("font", **{"family": "serif", "serif": ["Palatino"]})
     if use_tex:
-        rc("text", usetex=True)
-        rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
+        plt.rc("text", usetex=True)
+        plt.rc("text.latex", preamble=r"\usepackage{amsmath}")
 
     fig = plt.figure(figsize=fig_size)
     gs = gridspec.GridSpec(grid_spec[0], grid_spec[1])
