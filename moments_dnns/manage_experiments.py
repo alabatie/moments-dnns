@@ -48,32 +48,33 @@ def prune_experiment(type_plot: str, name_experiment: str):
         raise ValueError(f"Unknown type of plot: {type_plot}")
 
     pruned_list = ["depth"]
-    if type_plot == "vanilla_histo":
-        pruned_list += ["nu2_signal_loc3", "mu2_noise_loc3"]
-    elif type_plot == "vanilla":
-        pruned_list += ["chi_loc3", "chi_loc1", "reff_signal_loc3"]
-    elif type_plot == "bn_ff":
-        pruned_list += [
-            "chi_loc1",
-            "chi_loc3",
-            "chi_loc4",
-            "reff_noise_loc4",
-            "reff_signal_loc4",
-            "mu4_signal_loc3",
-            "nu1_abs_signal_loc3",
-        ]
-    elif type_plot == "bn_res":
-        pruned_list += [
-            "chi_loc4",
-            "chi_loc2",
-            "chi_loc1",
-            "chi_loc5",
-            "reff_noise_loc3",
-            "reff_signal_loc3",
-            "mu4_signal_loc2",
-            "nu1_abs_signal_loc2",
-        ]
-        pruned_list += ["res_depth"]
+    match type_plot:
+        case "vanilla_histo":
+            pruned_list += ["nu2_signal_loc3", "mu2_noise_loc3"]
+        case "vanilla":
+            pruned_list += ["chi_loc3", "chi_loc1", "reff_signal_loc3"]
+        case "bn_ff":
+            pruned_list += [
+                "chi_loc1",
+                "chi_loc3",
+                "chi_loc4",
+                "reff_noise_loc4",
+                "reff_signal_loc4",
+                "mu4_signal_loc3",
+                "nu1_abs_signal_loc3",
+            ]
+        case "bn_res":
+            pruned_list += [
+                "chi_loc4",
+                "chi_loc2",
+                "chi_loc1",
+                "chi_loc5",
+                "reff_noise_loc3",
+                "reff_signal_loc3",
+                "mu4_signal_loc2",
+                "nu1_abs_signal_loc2",
+            ]
+            pruned_list += ["res_depth"]
 
     moments = load_experiment(name_experiment)
     moments = {

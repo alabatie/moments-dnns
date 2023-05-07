@@ -132,45 +132,46 @@ def run_experiment(
         orig_strides=orig_strides,
     )
 
-    if architecture == "vanilla":
-        # vanilla net
-        submodel = init_ff_model(
-            spatial_size=spatial_size,
-            kernel_size=kernel_size,
-            num_channels=num_channels,
-            boundary=boundary,
-            sub_depth=sub_depth,
-            delta_moments=delta_moments,
-            name_moments=name_moments,
-            epsilon=epsilon,
-            batch_norm=False,
-        )
-    elif architecture == "bn_ff":
-        # batch-normalized feedforward net
-        submodel = init_ff_model(
-            spatial_size=spatial_size,
-            kernel_size=kernel_size,
-            num_channels=num_channels,
-            boundary=boundary,
-            sub_depth=sub_depth,
-            delta_moments=delta_moments,
-            name_moments=name_moments,
-            epsilon=epsilon,
-            batch_norm=True,
-        )
-    elif architecture == "bn_res":
-        # batch-normalized resnet
-        submodel = init_res_model(
-            spatial_size=spatial_size,
-            kernel_size=kernel_size,
-            num_channels=num_channels,
-            boundary=boundary,
-            sub_depth=sub_depth,
-            res_depth=res_depth,
-            delta_moments=delta_moments,
-            name_moments=name_moments,
-            epsilon=epsilon,
-        )
+    match architecture:
+        case "vanilla":
+            # vanilla net
+            submodel = init_ff_model(
+                spatial_size=spatial_size,
+                kernel_size=kernel_size,
+                num_channels=num_channels,
+                boundary=boundary,
+                sub_depth=sub_depth,
+                delta_moments=delta_moments,
+                name_moments=name_moments,
+                epsilon=epsilon,
+                batch_norm=False,
+            )
+        case "bn_ff":
+            # batch-normalized feedforward net
+            submodel = init_ff_model(
+                spatial_size=spatial_size,
+                kernel_size=kernel_size,
+                num_channels=num_channels,
+                boundary=boundary,
+                sub_depth=sub_depth,
+                delta_moments=delta_moments,
+                name_moments=name_moments,
+                epsilon=epsilon,
+                batch_norm=True,
+            )
+        case "bn_res":
+            # batch-normalized resnet
+            submodel = init_res_model(
+                spatial_size=spatial_size,
+                kernel_size=kernel_size,
+                num_channels=num_channels,
+                boundary=boundary,
+                sub_depth=sub_depth,
+                res_depth=res_depth,
+                delta_moments=delta_moments,
+                name_moments=name_moments,
+                epsilon=epsilon,
+            )
 
     # Fix numpy seed for image selection
     np.random.seed(numpy_seed)

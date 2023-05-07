@@ -157,13 +157,14 @@ def load_dataset(
         orig_spatial: spatial size of original images
         orig_channels: number of channels in original images
     """
-    if dataset == "cifar10":
-        (signal_orig, _), (_, _) = tf.keras.datasets.cifar10.load_data()
-    elif dataset == "mnist":
-        (signal_orig, _), (_, _) = tf.keras.datasets.mnist.load_data()
-        signal_orig = np.expand_dims(signal_orig, -1)
-    else:
-        raise NotImplementedError()
+    match dataset:
+        case "cifar10":
+            (signal_orig, _), (_, _) = tf.keras.datasets.cifar10.load_data()
+        case "mnist":
+            (signal_orig, _), (_, _) = tf.keras.datasets.mnist.load_data()
+            signal_orig = np.expand_dims(signal_orig, -1)
+        case _:
+            raise NotImplementedError()
 
     # number of original images
     orig_num = signal_orig.shape[0]

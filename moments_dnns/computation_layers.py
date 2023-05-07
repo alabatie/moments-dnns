@@ -66,34 +66,34 @@ class MomentsLayer(Layer):
         self, inputs: tuple[tf.Tensor, tf.Tensor, tf.Tensor], *args, **kwargs
     ) -> tf.Tensor:
         signal, noise, log_noise = inputs
-        moments = []  # stores all moments computed
-        if self.compute_moments:
-            mean_signal = tf.reduce_mean(signal, axis=[0, 1, 2], keepdims=True)
-            centered_signal = signal - mean_signal
-            log_noise = tf.reduce_mean(log_noise)  # squeeze dimensions
+        centered_signal = signal - tf.reduce_mean(signal, axis=[0, 1, 2], keepdims=True)
+        log_noise = tf.reduce_mean(log_noise)  # squeeze dimensions
 
-            for name_moment in self.name_moments:
-                if name_moment == "nu1_abs_signal":
+        moments = []  # stores all moments computed
+        name_moments = self.name_moments if self.compute_moments else []
+        for name_moment in name_moments:
+            match name_moment:
+                case "nu1_abs_signal":
                     moment = tf.reduce_mean(tf.abs(signal))
-                elif name_moment == "nu2_signal":
+                case "nu2_signal":
                     moment = tf.reduce_mean(tf.pow(signal, 2))
-                elif name_moment == "nu4_signal":
+                case "nu4_signal":
                     moment = tf.reduce_mean(tf.pow(signal, 4))
-                elif name_moment == "mu2_signal":
+                case "mu2_signal":
                     moment = tf.reduce_mean(tf.pow(centered_signal, 2))
-                elif name_moment == "mu4_signal":
+                case "mu4_signal":
                     moment = tf.reduce_mean(tf.pow(centered_signal, 4))
-                elif name_moment == "mu2_noise":
+                case "mu2_noise":
                     # computation in log scale here to avoid overflow
                     # noise is always centered -> mu2_noise = nu2_noise
                     moment = tf.math.log(tf.reduce_mean(tf.pow(noise, 2))) + log_noise
-                elif name_moment == "reff_signal":
+                case "reff_signal":
                     moment = self.compute_effective_rank(signal)
-                elif name_moment == "reff_noise":
+                case "reff_noise":
                     moment = self.compute_effective_rank(noise)
-                else:
+                case _:
                     raise NotImplementedError()
-                moments.append(tf.reshape(moment, (1,)))
+            moments.append(tf.reshape(moment, (1,)))
 
         return moments
 
