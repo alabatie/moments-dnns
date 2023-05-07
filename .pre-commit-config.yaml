@@ -14,7 +14,7 @@ repos:
           - commit
           - push
         language: system
-        entry: black --check
+        entry: poetry run black --check .
         types:
           - python
       - id: isort
@@ -23,8 +23,7 @@ repos:
           - commit
           - push
         language: system
-        entry: isort
-        args: ["--check"]
+        entry: poetry run isort --check .
         types:
           - python
       - id: flake8
@@ -33,7 +32,7 @@ repos:
           - commit
           - push
         language: system
-        entry: flake8 moments_dnns
+        entry: poetry run flake8 moments_dnns
         types:
           - python
       - id: bandit
