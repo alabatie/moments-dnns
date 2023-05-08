@@ -28,7 +28,7 @@ def run_experiment(
     num_channels: int,
     batch_size: int,
     num_sims: int,
-    name_experiment: str,
+    name_experiment: str | None,
     boundary: str = "periodic",
     dataset: str = "cifar10",
     epsilon: float = 0.001,
@@ -257,7 +257,8 @@ def run_experiment(
             moments_all[name_moment] = np.vstack((moments_all[name_moment], moment))
 
     # save experiment
-    save_experiment(moments_all, name_experiment)
+    if name_experiment is not None:
+        save_experiment(moments_all, name_experiment)
 
 
 if __name__ == "__main__":
