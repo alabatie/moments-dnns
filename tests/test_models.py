@@ -57,7 +57,7 @@ def test_bn_ff(orig_inputs):
     assert len(outputs) == 11
     assert signal.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
     assert noise.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
-    assert (noise ** 2).mean() > signal.var()
+    assert (noise**2).mean() > signal.var()
 
 
 def test_bn_res(orig_inputs):
@@ -79,4 +79,4 @@ def test_bn_res(orig_inputs):
     assert len(outputs) == 13
     assert signal.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
     assert noise.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
-    assert (noise ** 2).mean() > signal.var()
+    assert (noise**2).mean() > signal.var()

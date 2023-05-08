@@ -36,7 +36,7 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
 def prune_experiment(type_plot: str, name_experiment: str):
     """Only keep moments relevant for a given plot.
 
-    This enables to limit disk space taken by .npy results.
+    This enables to limit disk space taken by .npz results.
 
     # Args
         type_plot: type of plot corresponding to the pruning
