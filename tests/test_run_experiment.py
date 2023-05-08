@@ -1,10 +1,7 @@
 import numpy as np
 
+from moments_dnns.manage_experiments import delete_experiment, load_experiment
 from moments_dnns.run_experiment import run_experiment
-from moments_dnns.manage_experiments import (
-    load_experiment,
-    delete_experiment,
-)
 from tests import TEST_BATCH_SIZE, TEST_NUM_CHANNELS
 
 

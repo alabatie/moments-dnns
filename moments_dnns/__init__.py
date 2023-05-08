@@ -1,6 +1,6 @@
 """Init repo."""
-from pathlib import Path
 import logging
+from pathlib import Path
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)

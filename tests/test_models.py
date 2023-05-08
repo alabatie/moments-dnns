@@ -1,11 +1,7 @@
-import pytest
 import numpy as np
+import pytest
 
-from moments_dnns.models import (
-    init_ff_model,
-    init_res_model,
-    reset_model,
-)
+from moments_dnns.models import init_ff_model, init_res_model, reset_model
 from tests import TEST_BATCH_SIZE, TEST_NUM_CHANNELS
 
 

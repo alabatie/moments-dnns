@@ -1,9 +1,9 @@
-import pytest
 import numpy as np
+import pytest
 
 from moments_dnns import ROOT_DIR
-from moments_dnns.plots import plot_vanilla, plot_bn_ff, plot_bn_res
 from moments_dnns.plot_utils import delete_figure
+from moments_dnns.plots import plot_bn_ff, plot_bn_res, plot_vanilla
 from tests import TEST_DATA_DIR
 
 

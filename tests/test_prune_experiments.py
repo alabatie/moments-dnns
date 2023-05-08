@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
+import pytest
 
 from moments_dnns.manage_experiments import (
-    prune_experiment,
-    load_experiment,
     delete_experiment,
+    load_experiment,
+    prune_experiment,
 )
 from tests import TEST_DATA_DIR
 
