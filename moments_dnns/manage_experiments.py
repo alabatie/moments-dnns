@@ -1,5 +1,4 @@
 """Utils to manage experiments."""
-import shutil
 from pathlib import Path
 
 import numpy as np
@@ -88,39 +87,28 @@ def prune_experiment(type_plot: str, name_experiment: str):
 
 
 def save_experiment(moments: dict[str, np.ndarray], name_experiment: str):
-    """Save moments in npy/name_experiment/.
-
-    If directory already exists, it is deleted and re-created.
+    """Save moments in npz folder.
 
     # Arguments
         moments: moments of the experiment
         name_experiment: name of the experiment
     """
-    npy_dir = Path(__file__).parent.parent / "npy"
-    exp_dir = npy_dir / name_experiment
-    if exp_dir.is_dir():
-        shutil.rmtree(exp_dir)
-    exp_dir.mkdir()  # create a new dir
+    npz_dir = Path(__file__).parent.parent / "npz"
+    path_experiment = npz_dir / f"{name_experiment}.npz"
 
-    # save different moments as different .npy files
-    for name_moment, moment in moments.items():
-        path_file = exp_dir / name_moment
-        np.save(path_file, moment)
+    np.savez(path_experiment, **moments)
 
 
 def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
-    """Load moments from npy/name_experiment/.
+    """Load moments from npz folder.
 
     # Args
         name_experiment: name of the experiment
     """
-    npy_dir = Path(__file__).parent.parent / "npy"
-    exp_dir = npy_dir / name_experiment
-    if not exp_dir.is_dir():
-        raise ValueError("Experiment folder does not exist")
+    npz_dir = Path(__file__).parent.parent / "npz"
+    path_experiment = npz_dir / f"{name_experiment}.npz"
 
-    moments = {}
-    for path_file in exp_dir.glob("*"):
-        name_moment = path_file.stem
-        moments[name_moment] = np.load(path_file)
+    moments = np.load(path_experiment)
+    moments = dict(moments)
+
     return moments
