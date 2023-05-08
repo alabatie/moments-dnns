@@ -1,4 +1,6 @@
 """Plotting functions."""
+from functools import partial
+
 import numpy as np
 
 from moments_dnns.plot_utils import (
@@ -18,8 +20,8 @@ def plot_vanilla_histo(
     # Args
         moments: moments from the experiment
         use_tex: whether latex is used in legends and annotations
-            (If set to True, a LaTeX distribution must be found)
-        name_fig: the figure is saved as figures/name_fig.pdf
+            (requires LaTeX distribution)
+        name_fig: name of the figure to be saved
             (if left to None, no figure is saved)
     """
     fig, grid_spec = set_plot(fig_size=(16.5, 4.0), grid_spec=(1, 2), use_tex=use_tex)
@@ -65,7 +67,6 @@ def plot_vanilla_histo(
     )
     axis.text(0.02, 0.87, letter_b, fontsize=30, transform=axis.transAxes)
 
-    # save figure
     save_figure(name_fig=name_fig)
 
 
@@ -77,10 +78,11 @@ def plot_vanilla(
     # Args
         moments: moments from the experiment
         use_tex: whether latex is used in legends and annotations
-            (If set to True, a LaTeX distribution must be found)
-        name_fig: the figure is saved as figures/name_fig.pdf
+            (requires LaTeX distribution)
+        name_fig: name of the figure to be saved
             (if left to None, no figure is saved)
     """
+    plot_fn = partial(plot_moments, depth=moments["depth"])
     fig, grid_spec = set_plot(fig_size=(16.5, 4.0), grid_spec=(1, 2), use_tex=use_tex)
 
     yrange_list = [[0.96, 1.26], [0.6, 5.5]]
@@ -96,9 +98,8 @@ def plot_vanilla(
 
     # plot normalized sensitivity increments
     axis = fig.add_subplot(grid_spec[0, 0])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["chi_loc3"] / moments["chi_loc1"]],
         colors=["blue"],
         labels=label_a,
@@ -108,27 +109,24 @@ def plot_vanilla(
         log_scale=log_list[0],
         yrange=yrange_list[0],
     )
-    draw_line(axis=axis, depth=moments["depth"], value=1)  # draw reference at 1
+    draw_line(axis=axis, depth=moments["depth"], value=1)
     axis.text(0.02, 0.87, letter_list[0], fontsize=30, transform=axis.transAxes)
 
     # plot effective rank of signal
     axis = fig.add_subplot(grid_spec[0, 1])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["reff_signal_loc3"]],
         colors=["purple"],
-        line_styles=["-", ":"],
         labels=label_b,
         loc="upper right",
         bbox_to_anchor=(0.95, 1.02),
         log_scale=log_list[1],
         yrange=yrange_list[1],
     )
-    draw_line(axis=axis, depth=moments["depth"], value=1)  # draw reference at 1
+    draw_line(axis=axis, depth=moments["depth"], value=1)
     axis.text(0.02, 0.87, letter_list[1], fontsize=30, transform=axis.transAxes)
 
-    # save figure
     save_figure(name_fig=name_fig)
 
 
@@ -140,10 +138,11 @@ def plot_bn_ff(
     # Args
         moments: moments from the experiment
         use_tex: whether latex is used in legends and annotations
-            (if True, a LaTeX distribution must be found)
-        name_fig: the figure is saved as figures/name_fig.pdf
-            (if None, no figure is saved)
+            (requires LaTeX distribution)
+        name_fig: name of the figure to be saved
+            (if left to None, no figure is saved)
     """
+    plot_fn = partial(plot_moments, depth=moments["depth"])
     fig, grid_spec = set_plot(fig_size=(16.5, 8.5), grid_spec=(2, 2), use_tex=use_tex)
 
     yrange_list = [[0.99, 1.4], [1.0, 10**17], [0.8, 10000], [0.1, 30000]]
@@ -175,9 +174,8 @@ def plot_bn_ff(
 
     # plot normalized sensitivity increments
     axis = fig.add_subplot(grid_spec[0, 0])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[
             moments["chi_loc3"] / moments["chi_loc1"],
             moments["chi_loc4"] / moments["chi_loc3"],
@@ -191,14 +189,13 @@ def plot_bn_ff(
         log_scale=log_list[0],
         yrange=yrange_list[0],
     )
-    draw_line(axis=axis, depth=moments["depth"], value=1)  # draw reference at 1
+    draw_line(axis=axis, depth=moments["depth"], value=1)
     axis.text(0.02, 0.86, letter_list[0], fontsize=30, transform=axis.transAxes)
 
     # plot normalized sensitivity
     axis = fig.add_subplot(grid_spec[0, 1])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["chi_loc4"]],
         colors=["blue"],
         labels=label_b,
@@ -211,9 +208,8 @@ def plot_bn_ff(
 
     # plot effective ranks of noise and signal
     axis = fig.add_subplot(grid_spec[1, 0])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["reff_noise_loc4"], moments["reff_signal_loc4"]],
         colors=["purple", "purple"],
         line_styles=[":", "-"],
@@ -226,11 +222,10 @@ def plot_bn_ff(
     draw_line(axis=axis, depth=moments["depth"], value=1)
     axis.text(0.02, 0.86, letter_list[2], fontsize=30, transform=axis.transAxes)
 
-    # plot moments of the signal
+    # plot signal moments
     axis = fig.add_subplot(grid_spec[1, 1])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["mu4_signal_loc3"], moments["nu1_abs_signal_loc3"]],
         colors=["red", "red"],
         line_styles=[":", "-"],
@@ -242,7 +237,6 @@ def plot_bn_ff(
     )
     axis.text(0.02, 0.86, letter_list[3], fontsize=30, transform=axis.transAxes)
 
-    # save figure
     save_figure(name_fig=name_fig)
 
 
@@ -254,10 +248,11 @@ def plot_bn_res(
     # Args
         moments: moments from the experiment
         use_tex: whether latex is used in legends and annotations
-            (if True, a LaTeX distribution must be found)
-        name_fig: the figure is saved as figures/name_fig.pdf
-            (if None, no figure is saved)
+            (requires LaTeX distribution)
+        name_fig: name of the figure to be saved
+            (if left to None, no figure is saved)
     """
+    plot_fn = partial(plot_moments, depth=moments["depth"])
     fig, grid_spec = set_plot(fig_size=(16.5, 8.5), grid_spec=(2, 2), use_tex=use_tex)
 
     yrange_list = [[0.99, 1.4], [1.0, 50], [0.8, 20000], [0.0, 7.2]]
@@ -287,10 +282,10 @@ def plot_bn_res(
         label_d = [r"mu_4(z^{l,1})", r"nu_1(|z^{l,1}|)"]
         letter_list = [r"(a)", r"(b)", r"(c)", r"(d)"]
 
-    # make power law fit
+    # compute power law fit
     delta_chi = moments["chi_loc4"].mean(0) / moments["chi_loc1"].mean(0)
-    av_delta_chi = delta_chi.mean()  # average over the whole evolution
-    tau = (av_delta_chi ** (2 * moments["res_depth"]) - 1) / 2.0
+    avg_delta_chi = delta_chi.mean()  # average over the whole evolution
+    tau = (avg_delta_chi ** (2 * moments["res_depth"]) - 1) / 2.0
 
     chi = moments["chi_loc5"].mean(0)
     pow_law = moments["depth"] ** tau
@@ -299,9 +294,8 @@ def plot_bn_res(
 
     # plot normalized sensitivity increments
     axis = fig.add_subplot(grid_spec[0, 0])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[
             moments["chi_loc2"] / moments["chi_loc1"],
             moments["chi_loc4"] / moments["chi_loc2"],
@@ -320,9 +314,8 @@ def plot_bn_res(
 
     # plot normalized sensitivity
     axis = fig.add_subplot(grid_spec[0, 1])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["chi_loc5"], pow_law_fit],
         colors=["blue", "red"],
         line_styles=["-", "--"],
@@ -337,9 +330,8 @@ def plot_bn_res(
 
     # plot effective ranks of noise and signal
     axis = fig.add_subplot(grid_spec[1, 0])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["reff_noise_loc3"], moments["reff_signal_loc3"]],
         colors=["purple", "purple"],
         line_styles=[":", "-"],
@@ -352,11 +344,10 @@ def plot_bn_res(
     draw_line(axis=axis, depth=moments["depth"], value=1)
     axis.text(0.02, 0.86, letter_list[2], fontsize=30, transform=axis.transAxes)
 
-    # plot moments of the signal
+    # plot signal moments
     axis = fig.add_subplot(grid_spec[1, 1])
-    plot_moments(
+    plot_fn(
         axis=axis,
-        depth=moments["depth"],
         moments=[moments["mu4_signal_loc2"], moments["nu1_abs_signal_loc2"]],
         colors=["red", "red"],
         line_styles=[":", "-"],
@@ -368,5 +359,4 @@ def plot_bn_res(
     )
     axis.text(0.02, 0.86, letter_list[3], fontsize=30, transform=axis.transAxes)
 
-    # save figure
     save_figure(name_fig=name_fig)

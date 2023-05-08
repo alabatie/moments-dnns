@@ -1,4 +1,4 @@
-"""Utils to plot."""
+"""Utils for plots."""
 import warnings
 
 import matplotlib.pyplot as plt
@@ -16,25 +16,21 @@ warnings.filterwarnings("ignore")  # remove matplotlib warnings
 def save_figure(name_fig: bool = None):
     """Save_figure.
 
-    Either save in pdf in figures/pdf/name_fig.pdf, or in png in figures/png/name_fig.png.
+    Save in pdf in figures/pdf/name_fig.pdf, and in png in figures/png/name_fig.png.
     """
     if name_fig is not None:
-        # save pdf
         path = ROOT_DIR / "figures" / "pdf" / f"{name_fig}.pdf"
         plt.savefig(path, bbox_inches="tight")
 
-        # save png
         path = ROOT_DIR / "figures" / "png" / f"{name_fig}.png"
         plt.savefig(path, bbox_inches="tight")
 
 
 def delete_figure(name_fig: bool = None):
     """Delete_figure."""
-    # delete pdf
     path = ROOT_DIR / "figures" / "pdf" / f"{name_fig}.pdf"
     path.unlink()
 
-    # delete png
     path = ROOT_DIR / "figures" / "png" / f"{name_fig}.png"
     path.unlink()
 
@@ -47,9 +43,9 @@ def set_plot(
     # Args
         fig_size: size of figure
         grid_spec: grid specification
-            -> (2, 2) for a grid 2 x 2 (i.e. 2 lines, 2 columns)
-            -> (1, 2) for a grid 1 x 2 (i.e. 1 line, 2 columns)
-        use_latex: whether latex is enabled for legends
+            - (2, 2) for a grid 2 x 2 (i.e. 2 lines, 2 columns)
+            - (1, 2) for a grid 1 x 2 (i.e. 1 line, 2 columns)
+        use_tex: whether latex is enabled for legends
     """
     sns.set_style(
         "whitegrid",
@@ -74,9 +70,9 @@ def draw_line(axis: Axes, depth: np.ndarray, value: float | int):
     """Draw thin black dashed line to compare moments curves with a reference.
 
     # Args
-        axis: axis used for plot
+        axis: axis used for the plot
         depth: numpy array with depth values
-        value: constant value drawn as reference
+        value: constant value used as reference
     """
     axis.plot(depth, np.full_like(depth, value), ls="--", color="k", lw=1)
 
@@ -101,14 +97,14 @@ def plot_moments(
         axis: axis used for the plot
         depth: numpy array with depth values
         moments: moments
-        colors: colors for each moment (try to get sns color)
+        colors: colors corresponding to each moment
         labels: labels corresponding to each moment
         line_styles: line styles corresponding to each moment
         line_widths: line widths corresponding to each moment
         ncol: number of columns in the legend
         loc: location of the legend (default is 'best')
         bbox_to_anchor: set the part of the bounding box defined by loc
-            at position (x, y) (if None, loc simply defines the legend's loc)
+            at position (x, y) (if None, only loc defines the legend's loc)
         yrange: range of y (if None, use default range)
         log_scale: whether to use log scale or normal scale
     """
@@ -161,13 +157,11 @@ def plot_moments(
         edgecolor=plt.rcParams["axes.facecolor"],
         borderpad=0,
     )
-    if log_scale:
-        plt.yscale("log")
-
-    # set limits
     plt.xlim([0, np.max(depth)])
     if yrange is not None:
         plt.ylim(yrange)
+    if log_scale:
+        plt.yscale("log")
 
 
 def plot_histo(
@@ -179,7 +173,7 @@ def plot_histo(
     annotation: str,
     xannotation: float,
 ):
-    """Plot histogram of moments at four different depths.
+    """Plot the histogram of moments at four different depths.
 
     # Args
         axis: axis used for plot
@@ -200,7 +194,7 @@ def plot_histo(
     axis.plot(bins2, histo2, lw=2.0, color=sns.xkcd_rgb["magenta"])
     axis.plot(bins3, histo3, lw=2.0, color=sns.xkcd_rgb["red"])
 
-    # expand xlim and ylim
+    # set xlim and ylim
     axis.set_ylim(0, yfac * axis.get_ylim()[1])
     axis.set_xlim(xfac[0] * axis.get_xlim()[0], xfac[1] * axis.get_xlim()[1])
     axis.set_yticklabels([])  # remove y ticks
@@ -242,7 +236,7 @@ def make_histo(moment: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         - Get the results from np.histogram
         - Convert bin edges to centered bins
         - Convert the histogram to a density
-        (this step does not matter for our plots since we do not show the y-ticks)
+        (this step actually doesn't matter for our plots since we do not show the y-ticks)
 
     # Args
         moment: moments from all simulations at a given depth

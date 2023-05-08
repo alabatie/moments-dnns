@@ -6,7 +6,7 @@ from tensorflow.python.keras.layers import Layer
 class MomentsLayer(Layer):
     """Compute raw moments at given layer and given 'loc'.
 
-    # Computations
+    # Computes
         'nu1_abs_signal': 1st-order non-central moment of abs value of signal
         'nu2_signal': 2nd-order non-central moment of signal
         'nu4_signal': 4th-order non-central moment of signal
@@ -34,9 +34,9 @@ class MomentsLayer(Layer):
         """
         super().__init__()
         self.name_moments = name_moments
-        self.num_moments = len(self.name_moments)
         self.compute_moments = compute_moments
         self.compute_reff = compute_reff
+        self.num_moments = len(self.name_moments)
 
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
         """Return output shapes."""
@@ -49,8 +49,9 @@ class MomentsLayer(Layer):
         if self.compute_reff:
             # fetch feature vectors from every input x, dx and spatial position
             feat_vecs = tf.reshape(input_tensor, (-1, tf.shape(input_tensor)[-1]))
-            mean_feat_vecs = tf.reduce_mean(feat_vecs, axis=0, keepdims=True)
-            centered_feat_vecs = feat_vecs - mean_feat_vecs
+            centered_feat_vecs = feat_vecs - tf.reduce_mean(
+                feat_vecs, axis=0, keepdims=True
+            )
 
             # singular value decomposition
             sing_vals = tf.linalg.svd(centered_feat_vecs, compute_uv=False)
@@ -103,7 +104,7 @@ class MomentsLayer(Layer):
 class RescaleLayer(Layer):
     """Rescale noise to avoid overflow inside model.
 
-    Log of mu2_noise is stored in log_noise
+    Log of mu2_noise is then stored in log_noise
         (this value is reused afterwards in the computation of moments)
     """
 

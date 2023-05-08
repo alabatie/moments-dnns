@@ -1,4 +1,4 @@
-"""Model initialization and management."""
+"""Model utils."""
 from tensorflow.python.keras.layers import Input
 from tensorflow.python.keras.models import Model
 
@@ -19,10 +19,10 @@ def init_orig_model(
     boundary: str,
     orig_strides: int,
 ) -> Model:
-    """Initialize model performing an original convolution.
+    """Initialize original model performing a single convolution.
 
-    From (orig_size, orig_size, orig_channels)
-    to (orig_size // orig_strides, orig_size // orig_strides, num_channels).
+    Dimensions start from (orig_size, orig_size, orig_channels)
+    and change to (orig_size // orig_strides, orig_size // orig_strides, num_channels).
 
     The convolution is initialized with 'LeCun normal' since no ReLU follows.
     When kernel_size > 1, orig_strides = 2 to reduce spatial extent.
@@ -35,9 +35,6 @@ def init_orig_model(
         num_channels: number of channels in the propagated tensors
         boundary: boundary conditions
         orig_strides: strides of convolution
-
-    # Returns
-        [signal, noise]
     """
     orig_shape = (orig_size, orig_size, orig_channels)
     signal = Input(shape=orig_shape)
@@ -73,24 +70,22 @@ def init_ff_model(
 ) -> Model:
     """Initialize feedforward model.
 
-    # Computations
-        - Every delta_moments layers
+    # Computes
+        - Computation occurs once every delta_moments layers
         - Locs vanilla: 'loc1' -> Conv -> 'loc2' -> Activation -> 'loc3'
         - Locs bn_ff: 'loc1' -> Conv -> 'loc2' -> BN -> 'loc3' -> Activation -> 'loc4'
-        - Effective rank is only computed after activation, else it is set to -1
+        - Effective rank is computed after activation, but set to -1 in other locs
             since it is not needed for the plots
 
     # Args
         spatial_size: spatial extent of propagated tensors
-        kernel_size: spatial extent of convolutional kernel
+        kernel_size: spatial extent of convolutional kernels
         num_channels: number of channels in the propagated tensors
-        boundary: boundary conditions 'periodic' or 'symmetric'
-            or 'zero_padding'
+        boundary: boundary conditions ('periodic' or 'symmetric' or 'zero_padding')
         sub_depth: number of layers inside submodel
         delta_moments: interval between computation of moments
         name_moments: names of raw moments to be computed
         epsilon: fuzz factor of Batch Norm
-            (only relevant if batch_norm = True)
         batch_norm: True for 'bn_ff', False for 'vanilla'
     """
     input_shape = (spatial_size, spatial_size, num_channels)
@@ -135,11 +130,11 @@ def init_ff_model(
         # activation step
         signal, noise = ActivationLayer()([signal, noise])
 
-        # 'loc4' moments if batch norm is used, otherwise 'loc3' moments
+        # 'loc4' moments if batch norm is used, 'loc3' moments otherwise
         # only location where we really compute reff
         moments += reff_moments_layer([signal, noise, log_noise])
 
-        # rescale to avoid overflow
+        # rescale noise to avoid overflow
         noise, log_noise = RescaleLayer()([noise, log_noise])
 
     outputs = [signal, noise, log_noise] + moments
@@ -159,23 +154,24 @@ def init_res_model(
 ) -> Model:
     """Initialize ResNet model.
 
-    For each residual unit, residual branch goes through res_depth feedforward layers.
+    For each residual unit, the residual branch goes through res_depth feedforward layers.
 
-    # Computations
-        - every delta_moments residual units, in the first ff layer
-            of the residual unit and finally at 'loc5'
+    # Computes
+        - Computation occurs once every delta_moments residual units,
+            in the first ff layer of the residual unit and finally at 'loc5'
         - locs: 'loc1' -> BN -> 'loc2' -> Activation -> 'loc3'
             -> Conv -> 'loc4' -> ... -> 'loc5' (just after the addition)
-        - only compute reff after activation, else bypass and return -1
-        - rescale noise when branches are merged
+        - Effective rank is computed after activation, but set to -1 in other locs
+            since it is not needed for the plots
+        - Rescale noise when branches are merged
 
     # Args
         spatial_size: spatial extent of propagated tensors
-        kernel_size: spatial extent of convolutional kernel
+        kernel_size: spatial extent of convolutional kernels
         num_channels: number of channels
         boundary: boundary conditions
         sub_depth: number of residual units in the submodel
-        res_depth: total ff depth in each residual unit
+        res_depth: total feedforward depth in each residual unit
         delta_moments: interval between computation of moments
         name_moments: names of raw moments to be computed
         epsilon: fuzz factor of Batch Norm
@@ -232,7 +228,7 @@ def init_res_model(
             # loc4' moments
             moments += moments_layer([signal, noise, log_noise])
 
-        # merge branches
+        # merge branches by addition
         signal, noise = AddLayer()([signal, noise, signal_skip, noise_skip])
 
         # 'loc5' moments
@@ -249,16 +245,15 @@ def init_res_model(
 
 
 def reset_model(model: Model):
-    """Reinitialize model parameters.
+    """Re-initialize model parameters.
 
     Since only convolutional layers contain random parameters in our analysis:
         - Loop through all layers
-        - Reinitialize 'kernel' attribute of each convolutional layer
+        - Re-initialize 'kernel' attribute of each convolutional layer
     """
     for layer in model.layers:
-        for k, initializer in layer.__dict__.items():
-            if "initializer" not in k:
+        for key, initializer in layer.__dict__.items():
+            if "initializer" not in key:
                 continue
-            # find the corresponding variable
-            var = getattr(layer, k.replace("_initializer", ""))
+            var = getattr(layer, key.replace("_initializer", ""))  # fetch variable
             var.assign(initializer(var.shape, var.dtype))

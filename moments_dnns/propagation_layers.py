@@ -12,11 +12,11 @@ class ConvLayer(Layer):
     """Convolution step in the simultaneous propagation of signal and noise.
 
     Biases are taken to be zeros as in He initialization.
-    When boundary cond. are 'zero_padding', use conv2d with padding = 'same'.
-    When boundary cond. are 'periodic' or 'symmetric':
-        -> First pad signal and noise
-        -> Then use conv2d with padding = 'valid'
-    Kernel is stored as attribute 'kernel' and reinitialized for every submodel.
+    When boundary condition are 'zero_padding', use conv2d with padding = 'same'.
+    When boundary conditions are 'periodic' or 'symmetric':
+        - First pad signal and noise
+        - Then use conv2d with padding = 'VALID'
+    Kernel is stored as attribute 'kernel' and re-initialized in every submodel.
     """
 
     # pylint: disable=abstract-method
@@ -41,7 +41,7 @@ class ConvLayer(Layer):
             boundary: boundary conditions
             strides: strides of convolution
             fac_weigths: variance of weights equal to fac_weights / fan_in
-                (default value of fac_weights is 2. as in He initialization)
+                (default value of fac_weights is 2, as in He initialization)
         """
         super().__init__()
         self.input_size = input_size
@@ -112,10 +112,10 @@ class ConvLayer(Layer):
     ) -> tuple[tf.Tensor, tf.Tensor]:
         """Call layer."""
         signal, noise = inputs
-        if (self.boundary == "periodic") and (self.kernel_size > 1):
+        if self.boundary == "periodic" and self.kernel_size > 1:
             signal = self.pad_periodic(signal)
             noise = self.pad_periodic(noise)
-        elif (self.boundary == "symmetric") and (self.kernel_size > 1):
+        elif self.boundary == "symmetric" and self.kernel_size > 1:
             signal = self.pad_symmetric(signal)
             noise = self.pad_symmetric(noise)
 
