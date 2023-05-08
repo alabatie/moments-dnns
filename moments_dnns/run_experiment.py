@@ -46,7 +46,7 @@ def run_experiment(
         - Get name of moments to be computed
         - Initialize Keras models
         - For each simulation, propagate noise and signal, fetch moments
-        - Save moments in results/name_experiment/ as .npy files
+        - Save moments as .npz files
 
     # Usage
         - This function can be imported as a standard python function

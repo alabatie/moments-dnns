@@ -23,9 +23,9 @@ The package is built on top of TensorFlow Keras. At the core of the package, fou
 
 Custom layers are also introduced for the computation of the moments of signal and noise. Performing these computations inside the model rather than outside is much more effective both in terms of speed and memory usage.
 
-The entry-point of the package is `run_experiments.py`. This file contains the function `run_experiment()` which runs an experiment with fixed parameters for a given number of simulations. The results of the experiment are saved as numpy arrays in the folder `npy/name_experiment/` with the parameter `name_experiment` set at the invocation of `run_experiment()`.
+The entry-point of the package is `run_experiments.py`. This file contains the function `run_experiment()` which runs an experiment with fixed parameters for a given number of simulations. The results of the experiment are saved as npz arrays in the folder `npz` with the parameter `name_experiment` set at the invocation of `run_experiment()`.
 
-For an experiment with 1,000 simulations, `.npy` files typically occupy a space of a few MB. This space can be optionally reduced by calling the function `prune_experiment()` in the file `manage_experiments.py`. This function enables to only retain the moments relevant for a specific type of plot.
+For an experiment with 1,000 simulations, `.npz` files typically occupy a space of a few MB. This space can be optionally reduced by calling the function `prune_experiment()` in the file `manage_experiments.py`. This function enables to only retain the moments relevant for a specific type of plot.
 
 The file `plots.py` provides function to plot the results of the experiments in situations equivalent to Fig. 2, 3, 4, 5 of the paper.
 

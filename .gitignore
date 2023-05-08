@@ -5,4 +5,5 @@ moments_dnns/__pycache__/
 *.DS_Store
 *.pyc
 *.idea  
+*.vscode
 *egg-info

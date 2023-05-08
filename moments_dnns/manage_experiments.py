@@ -36,7 +36,7 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
 def prune_experiment(type_plot: str, name_experiment: str):
     """Only keep moments relevant for a given plot.
 
-    This enables to limit disk space taken by .npy results.
+    This enables to limit disk space taken by .npz results.
 
     # Args
         type_plot: type of plot corresponding to the pruning
@@ -112,3 +112,15 @@ def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
     moments = dict(moments)
 
     return moments
+
+
+def delete_experiment(name_experiment: str):
+    """Delete moments from npz folder.
+
+    # Args
+        name_experiment: name of the experiment
+    """
+    npz_dir = Path(__file__).parent.parent / "npz"
+    path_experiment = npz_dir / f"{name_experiment}.npz"
+
+    path_experiment.unlink()

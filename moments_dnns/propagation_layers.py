@@ -43,6 +43,7 @@ class ConvLayer(Layer):
             fac_weigths: variance of weights equal to fac_weights / fan_in
                 (default value of fac_weights is 2. as in He initialization)
         """
+        super().__init__()
         self.input_size = input_size
         self.kernel_size = kernel_size
         self.input_channels = input_channels
@@ -52,7 +53,7 @@ class ConvLayer(Layer):
             "VALID" if (self.boundary in ["periodic", "symmetric"]) else "SAME"
         )
         self.strides = strides
-        self.kernel_shape = (
+        kernel_shape = (
             self.kernel_size,
             self.kernel_size,
             self.input_channels,
@@ -61,14 +62,11 @@ class ConvLayer(Layer):
         fan_in = self.input_channels * self.kernel_size**2
         std_weights = sqrt(fac_weigths / float(fan_in))
         self.kernel = self.add_weight(
-            shape=self.kernel_shape,
+            shape=kernel_shape,
             name="kernel",
-            initializer=tf.compat.v1.keras.initializers.RandomNormal(
-                stddev=std_weights
-            ),
+            initializer=tf.random_normal_initializer(stddev=std_weights),
             dtype=tf.float32,
         )
-        super().__init__()
 
     def compute_output_shape(self, input_shape) -> list[tuple]:
         """Return output shapes."""
@@ -150,8 +148,8 @@ class BatchNormLayer(Layer):
         # Args
             epsilon: fuzz factor of Batch Norm
         """
-        self.epsilon = epsilon
         super().__init__()
+        self.epsilon = epsilon
 
     def call(
         self, inputs: tuple[tf.Tensor, tf.Tensor], *args, **kwargs
