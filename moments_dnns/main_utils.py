@@ -20,9 +20,8 @@ def check_args(
         - architecture must be 'vanilla' or 'bn_ff' or 'bn_res'
         - dataset must be 'cifar10' or 'mnist'
         - boundary must be  'periodic' or 'symmetric' or 'zero_padding'
-        - 'symmetric' boundary only compatible with odd kernel size
+        - 'symmetric' boundary rae only compatible with odd kernel size
         - total depth must be a multiple of the number of moment computations
-        - data format must be 'channels_last'
     """
     if not all(
         isinstance(arg, int)
@@ -67,7 +66,7 @@ def get_submodel_constants(
       spatial_size: spatial size of images in submodel
       num_submodels: number of submodels subdividing the total depth
           - each time the same Keras model is reused as submodel
-          - each time it is randomly reinitialized
+          - each time it is randomly re-initialized
           - this leads to exactly the same behaviour as a randomly
               initialized model of depth equal to total_depth
           - but it requires less memory
@@ -94,23 +93,24 @@ def get_name_moments(
 ) -> tuple[list[str], list[str], int, int]:
     """Create list of moment names.
 
-    Create lists of raw moments to be computed.
-    Create list of locs, depending on the architecture:
-      - vanilla: ['loc1', 'loc2', 'loc3']
-      - bn_ff:   ['loc1', 'loc2', 'loc3', 'loc4']
-      - bn_res:  ['loc1', 'loc2', 'loc3', 'loc4', 'loc5']
+    # Creates
+        list of raw moments to be computed.
+        list of locs, depending on the architecture:
+            - vanilla: ['loc1', 'loc2', 'loc3']
+            - bn_ff:   ['loc1', 'loc2', 'loc3', 'loc4']
+            - bn_res:  ['loc1', 'loc2', 'loc3', 'loc4', 'loc5']
 
     # Args
-      architecture: 'vanilla' or 'bn_ff' or 'bn_res'
-      compute_reff_signal: whether reff is computed for signal
-      compute_reff_noise: whether reff is computed for noise
+        architecture: 'vanilla' or 'bn_ff' or 'bn_res'
+        compute_reff_signal: whether reff is computed for signal
+        compute_reff_noise: whether reff is computed for noise
 
     # Returns
-      name_moments: names of raw (i.e. without locs) moments
-      locs: locs
-      num_moments: number of raw moments
-      num_moments_loc: total number of moments
-          (equals number of raw moments * number of locs)
+        name_moments: names of raw (i.e. without locs) moments
+        locs: locs
+        num_moments: number of raw moments
+        num_moments_loc: total number of moments
+            (equals number of raw moments * number of locs)
     """
     name_moments = [
         "nu1_abs_signal",
@@ -125,10 +125,15 @@ def get_name_moments(
         name_moments += ["reff_noise"]
     num_moments = len(name_moments)
 
-    # locs
-    num_locs = (
-        3 if (architecture == "vanilla") else (4 if (architecture == "bn_ff") else 5)
-    )
+    match architecture:
+        case "vanilla":
+            num_locs = 3
+        case "bn_ff":
+            num_locs = 4
+        case "bn_res":
+            num_locs = 5
+        case _:
+            raise NotImplementedError
     locs = ["loc" + str(iloc) for iloc in range(1, num_locs + 1)]
     num_moments_loc = num_locs * num_moments
 
@@ -137,17 +142,17 @@ def get_name_moments(
 
 def load_dataset(
     dataset: str, kernel_size: int
-) -> tuple[tf.Tensor, int, int, int, int]:
+) -> tuple[np.ndarray, int, int, int, int]:
     """Load_dataset.
 
-    Cifar images are 32 x 32 x 3
-    Mnist images are 28 x 28, and thus must be reshaped to 28 x 28 x 1
+    Cifar images are 32 x 32 x 3.
+    Mnist images are 28 x 28, and must be reshaped to 28 x 28 x 1.
     When kernel_size = 1, images are flattened to have spatial size n = 1
         (fully-connected case)
 
      # Args
         dataset: 'cifar1O' or 'mnist'
-        kernel_size: used to treat the fully-connected case
+        kernel_size: used to deal with the fully-connected case
 
      # Returns
         signal_orig: suitably reshaped original images
@@ -166,16 +171,15 @@ def load_dataset(
         case _:
             raise NotImplementedError()
 
-    # number of original images
-    orig_num = signal_orig.shape[0]
-
-    # if kernel_size = 1, fully-connected case -> we flatten inputs
+    # if kernel_size = 1 (fully-connected case), then flatten inputs
     if kernel_size == 1:
-        signal_orig = signal_orig.reshape((orig_num, 1, 1, -1))
+        signal_orig = signal_orig.reshape((signal_orig.shape[0], 1, 1, -1))
 
+    orig_strides = 2 if (kernel_size > 1) else 1  # strides of first conv
+    orig_num = signal_orig.shape[0]  # number of original images
     orig_spatial = signal_orig.shape[1]  # original spatial extent
     orig_channels = signal_orig.shape[-1]  # original num channels
-    orig_strides = 2 if (kernel_size > 1) else 1  # strides of first conv
+
     return (
         signal_orig,
         orig_strides,

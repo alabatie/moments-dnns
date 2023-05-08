@@ -1,7 +1,7 @@
 """Utils to manage experiments."""
-from pathlib import Path
-
 import numpy as np
+
+from moments_dnns import ROOT_DIR
 
 
 def merge_experiments(name_experiments: list[str], name_merged: str):
@@ -23,23 +23,22 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
         else:
             if not np.allclose(moments["depth"], moments_experiment["depth"]):
                 raise ValueError("Depth arrays do not match")
-            del moments_experiment["depth"]
-            for name_moment, moment_experiment in moments_experiment.items():
+            for name_moment in filter(
+                lambda name_moment: name_moment != "depth", moments_experiment.keys()
+            ):
                 moments[name_moment] = np.vstack(
-                    (moments[name_moment], moment_experiment)
+                    (moments[name_moment], moments_experiment[name_moment])
                 )
-
-    # save merged experiment
     save_experiment(moments, name_merged)
 
 
 def prune_experiment(type_plot: str, name_experiment: str):
-    """Only keep moments relevant for a given plot.
+    """Only keep relevant moments for a given plot.
 
     This enables to limit disk space taken by .npz results.
 
     # Args
-        type_plot: type of plot corresponding to the pruning
+        type_plot: type of plot associated with the pruning
             ('vanilla_histo' or 'vanilla' or 'bn_ff' or 'bn_res')
         name_experiment: name of the experiment
     """
@@ -72,8 +71,8 @@ def prune_experiment(type_plot: str, name_experiment: str):
                 "reff_signal_loc3",
                 "mu4_signal_loc2",
                 "nu1_abs_signal_loc2",
+                "res_depth",
             ]
-            pruned_list += ["res_depth"]
 
     moments = load_experiment(name_experiment)
     moments = {
@@ -81,8 +80,6 @@ def prune_experiment(type_plot: str, name_experiment: str):
         for name_moment, moment in moments.items()
         if name_moment in pruned_list
     }
-
-    # save pruned experiment
     save_experiment(moments, name_experiment)
 
 
@@ -93,9 +90,8 @@ def save_experiment(moments: dict[str, np.ndarray], name_experiment: str):
         moments: moments of the experiment
         name_experiment: name of the experiment
     """
-    npz_dir = Path(__file__).parent.parent / "npz"
+    npz_dir = ROOT_DIR / "npz"
     path_experiment = npz_dir / f"{name_experiment}.npz"
-
     np.savez(path_experiment, **moments)
 
 
@@ -105,9 +101,8 @@ def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
     # Args
         name_experiment: name of the experiment
     """
-    npz_dir = Path(__file__).parent.parent / "npz"
+    npz_dir = ROOT_DIR / "npz"
     path_experiment = npz_dir / f"{name_experiment}.npz"
-
     moments = np.load(path_experiment)
     moments = dict(moments)
 
@@ -120,7 +115,6 @@ def delete_experiment(name_experiment: str):
     # Args
         name_experiment: name of the experiment
     """
-    npz_dir = Path(__file__).parent.parent / "npz"
+    npz_dir = ROOT_DIR / "npz"
     path_experiment = npz_dir / f"{name_experiment}.npz"
-
     path_experiment.unlink()

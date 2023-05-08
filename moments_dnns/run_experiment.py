@@ -38,19 +38,19 @@ def run_experiment(
     compute_reff_signal: bool = True,
     compute_reff_noise: bool = True,
 ):
-    """Entry point of the code to run experiments.
+    """Entry point of the repo to run experiments.
 
     # Steps
         - Check that experiment arguments are valid
         - Load data
         - Get name of moments to be computed
-        - Initialize Keras models
-        - For each simulation, propagate noise and signal, fetch moments
+        - Initialize models
+        - For each simulation, propagate noise and signal, and fetch moments
         - Save moments as .npz files
 
     # Usage
         - This function can be imported as a standard python function
-        - Or executed directly as a script with the fire interface, e.g.
+        - Or executed directly as a script with fire, e.g.
             ```python run_experiment.py --architecture=bn_ff
               --total_depth=200 --kernel_size=3 --num_channels=512
               --boundary=periodic --dataset=cifar10 --batch_size=64
@@ -58,25 +58,24 @@ def run_experiment(
 
     # Args
         architecture: 'vanilla' or 'bn_ff' or 'bn_res'
-        total_depth: total depth of the experiment
-        kernel_size: spatial extent of convolutional kernel
+        total_depth: total depth of the model
+        kernel_size: spatial extent of convolutional kernels
         num_channels: number of channels
         batch_size: number of images considered for each simulation
-            (in other words, 1 simulation = 1 batch)
-        num_sims: number of simulations in the experiment,
-            i.e. number of randomly initialized simultaneous propagation of
-            signal on noise with computation of moments
-        name_experiment: name of experiment / directory to save results
-            (if directory already exists, it will be deleted and created again)
-        boundary: boundary condition among 'periodic' or 'symmetric'
-            or 'zero_padding' (only relevant if kernel_size > 1)
+            (i.e. 1 simulation = 1 batch)
+        num_sims: number of simulations in the experiment
+            (i.e. number of randomly initialized propagation of signal and noise)
+        name_experiment: name of experiment and directory to save results
+            (if directory already exists, it is deleted and created again)
+        boundary: 'periodic' or 'symmetric' or 'zero_padding'
+            (only relevant if kernel_size > 1)
         dataset: 'cifar10' or 'mnist'
         epsilon: fuzz factor of Batch Norm
             (only relevant if architecture = 'bn_ff' or 'bn_res')
         res_depth: feedforward depth of residual units
             (only relevant if architecture = 'bn_res')
         num_computations: total number of moment computations
-            (moment computation every total depth // num_computations layers)
+            (computation occurs once every total depth // num_computations layers)
         numpy_seed:
             - seed to reproduce image selection
             - it does not lead to fully deterministic behaviour either,
@@ -87,7 +86,6 @@ def run_experiment(
     """
     # pylint: disable=too-many-arguments
     # pylint: disable=too-many-locals
-    # log arguments
     logger = logging.getLogger(__name__)
     frame = inspect.currentframe()
     args, _, _, param_values = inspect.getargvalues(frame)
@@ -122,7 +120,7 @@ def run_experiment(
         orig_size, orig_strides, total_depth, num_computations
     )
 
-    # initialize original model
+    # initialize original model performing a single convolution
     original_model = init_orig_model(
         orig_size=orig_size,
         kernel_size=kernel_size,
@@ -134,7 +132,6 @@ def run_experiment(
 
     match architecture:
         case "vanilla":
-            # vanilla net
             submodel = init_ff_model(
                 spatial_size=spatial_size,
                 kernel_size=kernel_size,
@@ -147,7 +144,6 @@ def run_experiment(
                 batch_norm=False,
             )
         case "bn_ff":
-            # batch-normalized feedforward net
             submodel = init_ff_model(
                 spatial_size=spatial_size,
                 kernel_size=kernel_size,
@@ -160,7 +156,6 @@ def run_experiment(
                 batch_norm=True,
             )
         case "bn_res":
-            # batch-normalized resnet
             submodel = init_res_model(
                 spatial_size=spatial_size,
                 kernel_size=kernel_size,
@@ -176,7 +171,7 @@ def run_experiment(
     # Fix numpy seed for image selection
     np.random.seed(numpy_seed)
 
-    # this dict will aggregate all moments from all simulations
+    # this dict aggregates all moments from all simulations
     moments_all = {
         "depth": total_depth // num_computations * np.arange(1, num_computations + 1),
         "res_depth": res_depth,
@@ -187,17 +182,16 @@ def run_experiment(
         ind_sim = np.random.permutation(orig_num)[:batch_size]
         signal = signal_orig[ind_sim]
 
-        # Start with unit variance noise
-        # since all pathologies are invariant to original noise scaling and
-        # since we use the right equations of propagation  - linear in
-        # the input noise - this works, and later avoids the normalization
-        # mu2(dx^0) in chi^l
+        # Start with unit variance noise.
+        # This later avoids the additional normalization mu2(dx^0) in chi^l.
+        # This works since all pathologies are invariant to original noise scaling
+        # and we use the right equations of propagation (linear in the input noise).
         noise = np.random.normal(
             0, 1, (batch_size, orig_size, orig_size, orig_channels)
         )
 
-        # normalize with constant rescaling to have mu2_signal = 1
-        # this later avoids the additional normalization mu2(x^0) in chi^l
+        # Normalize with constant rescaling to have mu2(x^0) = 1.
+        # This later avoids the additional normalization mu2(x^0) in chi^l.
         signal = (signal - signal.mean(axis=(0, 1, 2), keepdims=True)) / signal.std(
             axis=(0, 1, 2), keepdims=True
         )
@@ -211,10 +205,10 @@ def run_experiment(
         log_noise = np.zeros((batch_size, 1, 1, 1))  # start at zero log
         inputs = outputs + [log_noise]
 
-        # pass through the same keras submodel, each time reinitialized
+        # pass through the same keras submodel, each time re-initialized
         moments = []
         for _ in range(num_submodels):  # total depth divided in submodels
-            reset_model(submodel)  # reinitialize submodel
+            reset_model(submodel)  # re-initialize submodel
             outputs = submodel.predict(inputs, batch_size=batch_size)
 
             moments += outputs[3:]  # fetch signal, noise, log_noise
@@ -230,10 +224,9 @@ def run_experiment(
                 # convert to float128 to deal with large values
                 moment = np.array(moment, dtype=np.float128)
 
-                # average over fake batch dimension
-                #  - this is just a dummy dimension added by keras,
-                #     which necessarily returns an array (batch_size,)
-                #  - outputs are already constants with respect to this dim
+                # Average over fake batch dimension
+                # (this is just a dummy dimension added by keras).
+                # Outputs are already constants with respect to this dim.
                 moment = moment.mean(1)
                 if "mu2_noise" in name_moment:
                     # take exp for mu_2_noise, since it comes in log scale
@@ -262,5 +255,5 @@ def run_experiment(
 
 
 if __name__ == "__main__":
-    # fire enables to run this function directly in bash
+    # fire enables to run this function directly in CLI
     fire.Fire(run_experiment)
