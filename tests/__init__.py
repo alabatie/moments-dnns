@@ -1,1 +1,3 @@
 """Init tests."""
+TEST_BATCH_SIZE = 8
+TEST_NUM_CHANNELS = 16

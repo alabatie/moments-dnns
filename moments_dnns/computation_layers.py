@@ -32,11 +32,11 @@ class MomentsLayer(Layer):
             compute_reff: if False, bypass reff computation by returning -1
                 (computational bottleneck)
         """
+        super().__init__()
         self.name_moments = name_moments
         self.num_moments = len(self.name_moments)
         self.compute_moments = compute_moments
         self.compute_reff = compute_reff
-        super().__init__()
 
     def compute_output_shape(self, input_shape: list[tuple]) -> list[tuple]:
         """Return output shapes."""
