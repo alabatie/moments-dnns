@@ -1,6 +1,5 @@
 """Utils to plot."""
 import warnings
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +7,8 @@ import seaborn as sns
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
+
+from moments_dnns import ROOT_DIR
 
 warnings.filterwarnings("ignore")  # remove matplotlib warnings
 
@@ -18,15 +19,24 @@ def save_figure(name_fig: bool = None):
     Either save in pdf in figures/pdf/name_fig.pdf, or in png in figures/png/name_fig.png.
     """
     if name_fig is not None:
-        fig_folder = Path(__file__).parent.parent / "figures"
-
         # save pdf
-        path = fig_folder / "pdf" / f"{name_fig}.pdf"
+        path = ROOT_DIR / "figures" / "pdf" / f"{name_fig}.pdf"
         plt.savefig(path, bbox_inches="tight")
 
         # save png
-        path = fig_folder / "png" / f"{name_fig}.png"
+        path = ROOT_DIR / "figures" / "png" / f"{name_fig}.png"
         plt.savefig(path, bbox_inches="tight")
+
+
+def delete_figure(name_fig: bool = None):
+    """Delete_figure."""
+    # delete pdf
+    path = ROOT_DIR / "figures" / "pdf" / f"{name_fig}.pdf"
+    path.unlink()
+
+    # delete png
+    path = ROOT_DIR / "figures" / "png" / f"{name_fig}.png"
+    path.unlink()
 
 
 def set_plot(
@@ -50,9 +60,8 @@ def set_plot(
             "axes.edgecolor": "1",
         },
     )
-
-    plt.rc("font", **{"family": "serif", "serif": ["Palatino"]})
     if use_tex:
+        plt.rc("font", **{"family": "serif", "serif": ["Palatino"]})
         plt.rc("text", usetex=True)
         plt.rc("text.latex", preamble=r"\usepackage{amsmath}")
 

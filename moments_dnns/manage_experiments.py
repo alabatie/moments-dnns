@@ -112,3 +112,15 @@ def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
     moments = dict(moments)
 
     return moments
+
+
+def delete_experiment(name_experiment: str):
+    """Delete moments from npz folder.
+
+    # Args
+        name_experiment: name of the experiment
+    """
+    npz_dir = Path(__file__).parent.parent / "npz"
+    path_experiment = npz_dir / f"{name_experiment}.npz"
+
+    path_experiment.unlink()
