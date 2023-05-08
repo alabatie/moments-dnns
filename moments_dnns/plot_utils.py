@@ -18,7 +18,7 @@ def save_figure(name_fig: bool = None):
     Either save in pdf in figures/pdf/name_fig.pdf, or in png in figures/png/name_fig.png.
     """
     if name_fig is not None:
-        fig_folder = Path(__file__).parent / "figures"
+        fig_folder = Path(__file__).parent.parent / "figures"
 
         # save pdf
         path = fig_folder / "pdf" / f"{name_fig}.pdf"

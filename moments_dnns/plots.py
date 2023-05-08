@@ -24,22 +24,20 @@ def plot_vanilla_histo(
     """
     fig, grid_spec = set_plot(fig_size=(16.5, 4.0), grid_spec=(1, 2), use_tex=use_tex)
     if use_tex:
-        annotation_a = (
-            r"$\\log \\nu_2(\\mathbf{x}^l) - " + r"\\log \\nu_2(\\mathbf{x}^0)$"
-        )
+        annotation_a = r"$\log \nu_2(\mathbf{x}^l) - " + r"\log \nu_2(\mathbf{x}^0)$"
         annotation_b = (
-            r"$\\log \\mu_2(\\mathrm{d}\\mathbf{x}^l)"
-            + r"-\\log \\mu_2(\\mathrm{d}\\mathbf{x}^0)$"
+            r"$\log \mu_2(\mathrm{d}\mathbf{x}^l)"
+            + r"-\log \mu_2(\mathrm{d}\mathbf{x}^0)$"
         )
-        letter_a = r"\\textit{(a)}"
-        letter_b = r"\\textit{(b)}"
-        labels = ["$l=50$", "$l=100$", "$l=150$", "$l=200$"]
+        letter_a = r"\textit{(a)}"
+        letter_b = r"\textit{(b)}"
+        labels = [r"$l=50$", r"$l=100$", r"$l=150$", r"$l=200$"]
     else:
-        annotation_a = "log nu2(x^l) - log nu_2(x^0)"
-        annotation_b = "log mu2(dx^l) - log mu_2(dx^0)"
-        letter_a = "(a)"
-        letter_b = "(b)"
-        labels = ["l = 50", "l = 100", " l = 150", "l = 200"]
+        annotation_a = r"log nu2(x^l) - log nu_2(x^0)"
+        annotation_b = r"log mu2(dx^l) - log mu_2(dx^0)"
+        letter_a = r"(a)"
+        letter_b = r"(b)"
+        labels = [r"l = 50", r"l = 100", r" l = 150", r"l = 200"]
 
     # second-order moments of signal
     axis = fig.add_subplot(grid_spec[0, 0])
@@ -88,13 +86,13 @@ def plot_vanilla(
     yrange_list = [[0.96, 1.26], [0.6, 5.5]]
     log_list = [False, False]
     if use_tex:
-        label_a = [r"$\\delta\\chi^l$"]
-        label_b = [r"$r_\\textrm{\LARGE eff}(\\mathbf{x}^l)$"]
-        letter_list = [r"\\textit{(a)}", r"\\textit{(b)}"]
+        label_a = [r"$\delta\chi^l$"]
+        label_b = [r"$r_\textrm{\LARGE eff}(\mathbf{x}^l)$"]
+        letter_list = [r"\textit{(a)}", r"\textit{(b)}"]
     else:
-        label_a = ["delta chi^l"]
-        label_b = ["reff(x^l)"]
-        letter_list = ["(a)", "(b)"]
+        label_a = [r"delta chi^l"]
+        label_b = [r"reff(x^l)"]
+        letter_list = [r"(a)", r"(b)"]
 
     # plot normalized sensitivity increments
     axis = fig.add_subplot(grid_spec[0, 0])
@@ -152,28 +150,28 @@ def plot_bn_ff(
     log_list = [False, True, True, True]
     if use_tex:
         label_a = [
-            r"$\delta^{}_\\textrm{\LARGE BN} \\hspace{.03em} \chi^l$",
-            r"$\delta_{\phi} \\hspace{.03em} \chi^l$",
+            r"$\delta^{}_\textrm{\LARGE BN} \hspace{.03em} \chi^l$",
+            r"$\delta_{\phi} \hspace{.03em} \chi^l$",
             r"$\delta\chi^l$",
         ]
         label_b = [r"$\chi^l$"]
         label_c = [
-            r"$r_\\textrm{\LARGE eff}(\mathrm{d}\mathbf{x}^l)$",
-            r"$r_\\textrm{\LARGE eff}(\mathbf{x}^l)$",
+            r"$r_\textrm{\LARGE eff}(\mathrm{d}\mathbf{x}^l)$",
+            r"$r_\textrm{\LARGE eff}(\mathbf{x}^l)$",
         ]
-        label_d = [r"$\\mu_4(\mathbf{z}^l)$", r"$\\nu_1(|\mathbf{z}^l|)$"]
+        label_d = [r"$\mu_4(\mathbf{z}^l)$", r"$\nu_1(|\mathbf{z}^l|)$"]
         letter_list = [
-            r"\\textit{(a)}",
-            r"\\textit{(b)}",
-            r"\\textit{(c)}",
-            r"\\textit{(d)}",
+            r"\textit{(a)}",
+            r"\textit{(b)}",
+            r"\textit{(c)}",
+            r"\textit{(d)}",
         ]
     else:
-        label_a = ["deltaBN chi^l", "deltaphi chi^l", "delta chi^l"]
-        label_b = ["chi^l"]
-        label_c = ["reff(dx^l)", "reff(x^l)"]
-        label_d = ["mu_4(z^l)", "nu_1(|z^l|)"]
-        letter_list = ["(a)", "(b)", "(c)", "(d)"]
+        label_a = [r"deltaBN chi^l", r"deltaphi chi^l", r"delta chi^l"]
+        label_b = [r"chi^l"]
+        label_c = [r"reff(dx^l)", r"reff(x^l)"]
+        label_d = [r"mu_4(z^l)", r"nu_1(|z^l|)"]
+        letter_list = [r"(a)", r"(b)", r"(c)", r"(d)"]
 
     # plot normalized sensitivity increments
     axis = fig.add_subplot(grid_spec[0, 0])
@@ -266,28 +264,28 @@ def plot_bn_res(
     log_list = [False, False, True, False]
     if use_tex:
         label_a = [
-            r"$\\delta^{}_\\textrm{\LARGE BN} \\hspace{.03em} \\chi^{l,1}$",
-            r"$\\delta_{\\phi} \\hspace{.03em} \\chi^{l,1}$",
-            r"$\\delta\\chi^{l,1}$",
+            r"$\delta^{}_\textrm{\LARGE BN} \hspace{.03em} \chi^{l,1}$",
+            r"$\delta_{\phi} \hspace{.03em} \chi^{l,1}$",
+            r"$\delta\chi^{l,1}$",
         ]
-        label_b = [r"$\\chi^l$", r"$l^{\\tau}$"]
+        label_b = [r"$\chi^l$", r"$l^{\tau}$"]
         label_c = [
-            r"$r_\\textrm{\LARGE eff}(\\mathrm{d}\\mathbf{x}^{l,1})$",
-            r"$r_\\textrm{\LARGE eff}(\\mathbf{x}^{l,1})$",
+            r"$r_\textrm{\LARGE eff}(\mathrm{d}\mathbf{x}^{l,1})$",
+            r"$r_\textrm{\LARGE eff}(\mathbf{x}^{l,1})$",
         ]
-        label_d = [r"$\\mu_4(\\mathbf{z}^{l,1})$", r"$\\nu_1(|\\mathbf{z}^{l,1}|)$"]
+        label_d = [r"$\mu_4(\mathbf{z}^{l,1})$", r"$\nu_1(|\mathbf{z}^{l,1}|)$"]
         letter_list = [
-            r"\\textit{(a)}",
-            r"\\textit{(b)}",
-            r"\\textit{(c)}",
-            r"\\textit{(d)}",
+            r"\textit{(a)}",
+            r"\textit{(b)}",
+            r"\textit{(c)}",
+            r"\textit{(d)}",
         ]
     else:
-        label_a = ["deltaBN chi^{l,1}", "deltaphi chi^{l,1}", "delta chi^{l,1}"]
-        label_b = ["chi^l", "l^tau"]
-        label_c = ["reff(dx^{l,1})", "reff(x^{l,1})"]
-        label_d = ["mu_4(z^{l,1})", "nu_1(|z^{l,1}|)"]
-        letter_list = ["(a)", "(b)", "(c)", "(d)"]
+        label_a = [r"deltaBN chi^{l,1}", r"deltaphi chi^{l,1}", r"delta chi^{l,1}"]
+        label_b = [r"chi^l", r"l^tau"]
+        label_c = [r"reff(dx^{l,1})", r"reff(x^{l,1})"]
+        label_d = [r"mu_4(z^{l,1})", r"nu_1(|z^{l,1}|)"]
+        letter_list = [r"(a)", r"(b)", r"(c)", r"(d)"]
 
     # make power law fit
     delta_chi = moments["chi_loc4"].mean(0) / moments["chi_loc1"].mean(0)
