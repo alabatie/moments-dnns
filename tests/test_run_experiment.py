@@ -15,7 +15,7 @@ def test_run_experiment_vanilla():
         batch_size=TEST_BATCH_SIZE,
         num_sims=1,
         name_experiment=f"test_{architecture}",
-        dataset="mnist",  # MNIST is lighter to download
+        dataset="cifar10",
         num_computations=1,
     )
     moments = load_experiment(name_experiment=f"test_{architecture}")
@@ -36,7 +36,7 @@ def test_run_experiment_bn_ff():
         batch_size=TEST_BATCH_SIZE,
         num_sims=1,
         name_experiment=f"test_{architecture}",
-        dataset="mnist",  # MNIST is lighter to download
+        dataset="cifar10",
         num_computations=1,
     )
     moments = load_experiment(name_experiment=f"test_{architecture}")
@@ -57,7 +57,7 @@ def test_run_experiment_bn_res():
         batch_size=TEST_BATCH_SIZE,
         num_sims=1,
         name_experiment=f"test_{architecture}",
-        dataset="mnist",  # MNIST is lighter to download
+        dataset="cifar10",
         num_computations=1,
     )
     moments = load_experiment(name_experiment=f"test_{architecture}")
