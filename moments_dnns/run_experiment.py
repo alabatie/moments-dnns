@@ -199,7 +199,7 @@ def run_experiment(
         # pass original signal and noise through original model
         inputs = [signal, noise]
         reset_model(original_model)
-        outputs = original_model.predict(inputs, batch_size=batch_size, verbose=False)
+        outputs = original_model(inputs, training=False)
 
         # incorporate logarithm of mu2(dx^l)
         log_noise = np.zeros((batch_size, 1, 1, 1))  # start at zero log
@@ -209,7 +209,7 @@ def run_experiment(
         moments = []
         for _ in range(num_submodels):  # total depth divided in submodels
             reset_model(submodel)  # re-initialize submodel
-            outputs = submodel.predict(inputs, batch_size=batch_size)
+            outputs = submodel(inputs, training=False)
 
             moments += outputs[3:]  # fetch signal, noise, log_noise
             inputs = outputs[:3]  # fetch moments
