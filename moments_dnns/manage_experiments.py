@@ -26,7 +26,7 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
         raise ValueError("Residual depths do not match.")
     if any(len(depth) != len(moments["depth"][0]) for depth in moments["depth"]):
         raise ValueError("Depth arrays do not match.")
-    
+
     for name_moment in moments:
         if name_moment in ("depth", "res_depth"):
             moments[name_moment] = moments[name_moment][0]
