@@ -27,7 +27,7 @@ _bump_major:
 _update:
 	$(eval NEXT_VERSION=$(shell poetry version | sed -e 's/moments-dnns[ ]//g'))
 	@git stash
-	@git checkout master
+	@git checkout main
 	@git pull
 	@git checkout -b "chore/release-v${NEXT_VERSION}"
 	@git stash apply
