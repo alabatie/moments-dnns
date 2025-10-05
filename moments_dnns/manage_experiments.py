@@ -17,18 +17,21 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
     moments = {}
     for iexperiment, name_experiment in enumerate(name_experiments):
         moments_experiment = load_experiment(name_experiment)
+        for name_moment, moments in moments_experiment.items():
+            if name_moment not in moments:
+                moments[name_moment] = []
+            moments[name_moment].append(moments)
 
-        if iexperiment == 0:
-            moments = moments_experiment
+    if any(res_depth != moments["res_depth"][0] for res_depth in moments["res_depth"]):
+        raise ValueError("Residual depths do not match.")
+    if any(len(depth) != len(moments["depth"][0]) for depth in moments["depth"]):
+        raise ValueError("Depth arrays do not match.")
+    
+    for name_moment in moments:
+        if name_moment in ("depth", "res_depth"):
+            moments[name_moment] = moments[name_moment][0]
         else:
-            if not np.allclose(moments["depth"], moments_experiment["depth"]):
-                raise ValueError("Depth arrays do not match")
-            for name_moment in filter(
-                lambda name_moment: name_moment != "depth", moments_experiment.keys()
-            ):
-                moments[name_moment] = np.vstack(
-                    (moments[name_moment], moments_experiment[name_moment])
-                )
+            moments[name_moment] = np.concatenate(moments[name_moment], axis=0)
     save_experiment(moments, name_merged)
 
 
@@ -104,9 +107,8 @@ def load_experiment(name_experiment: str) -> dict[str, np.ndarray]:
     npz_dir = ROOT_DIR / "npz"
     path_experiment = npz_dir / f"{name_experiment}.npz"
     moments = np.load(path_experiment)
-    moments = dict(moments)
 
-    return moments
+    return dict(moments)
 
 
 def delete_experiment(name_experiment: str):

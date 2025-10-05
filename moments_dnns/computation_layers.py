@@ -28,7 +28,7 @@ class MomentsLayer(Layer):
 
         # Args
             name_moments: names of raw moments to be computed
-            compute_moments: if True compute rmoments, else return []
+            compute_moments: if True compute moments, else return []
             compute_reff: if False, bypass reff computation by returning -1
                 (computational bottleneck)
         """
