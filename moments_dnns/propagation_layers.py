@@ -61,10 +61,11 @@ class ConvLayer(Layer):
         )
         fan_in = self.input_channels * self.kernel_size**2
         std_weights = sqrt(fac_weigths / float(fan_in))
+        self.kernel_initializer = tf.random_normal_initializer(stddev=std_weights)
         self.kernel = self.add_weight(
             shape=kernel_shape,
             name="kernel",
-            initializer=tf.random_normal_initializer(stddev=std_weights),
+            initializer=self.kernel_initializer,
             dtype=tf.float32,
         )
 
