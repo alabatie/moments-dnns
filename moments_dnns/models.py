@@ -1,4 +1,5 @@
 """Model utils."""
+import tensorflow as tf
 from tensorflow.python.keras.layers import Input
 from tensorflow.python.keras.models import Model
 
@@ -252,8 +253,10 @@ def reset_model(model: Model):
         - Re-initialize 'kernel' attribute of each convolutional layer
     """
     for layer in model.layers:
-        for key, initializer in layer.__dict__.items():
-            if "initializer" not in key:
-                continue
-            var = getattr(layer, key.replace("_initializer", ""))  # fetch variable
-            var.assign(initializer(var.shape, var.dtype))
+        if hasattr(layer, "kernel") and isinstance(layer.kernel, tf.Variable):
+            # Use the layer's kernel_initializer
+            kernel_init = getattr(layer, "kernel_initializer", None)
+            if kernel_init is not None:
+                layer.kernel.assign(
+                    kernel_init(tf.shape(layer.kernel), layer.kernel.dtype)
+                )

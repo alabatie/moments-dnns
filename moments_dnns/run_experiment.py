@@ -199,7 +199,7 @@ def run_experiment(
         # pass original signal and noise through original model
         inputs = [signal, noise]
         reset_model(original_model)
-        outputs = original_model.predict(inputs, batch_size=batch_size, verbose=False)
+        outputs = original_model(inputs, training=False)
 
         # incorporate logarithm of mu2(dx^l)
         log_noise = np.zeros((batch_size, 1, 1, 1))  # start at zero log
@@ -209,7 +209,7 @@ def run_experiment(
         moments = []
         for _ in range(num_submodels):  # total depth divided in submodels
             reset_model(submodel)  # re-initialize submodel
-            outputs = submodel.predict(inputs, batch_size=batch_size)
+            outputs = submodel(inputs, training=False)
 
             moments += outputs[3:]  # fetch signal, noise, log_noise
             inputs = outputs[:3]  # fetch moments
@@ -222,7 +222,7 @@ def run_experiment(
                 moment = moments[imoment_loc::num_moments_loc]
 
                 # convert to float128 to deal with large values
-                moment = np.array(moment, dtype=np.float128)
+                moment = np.array(moment, dtype=np.longdouble)
 
                 # Average over fake batch dimension
                 # (this is just a dummy dimension added by keras).
@@ -234,20 +234,22 @@ def run_experiment(
                     moment = np.exp(moment)
 
                 # add loc
-                name_moment = name_moment + "_" + loc
-                moments_sim[name_moment] = moment
+                moments_sim[name_moment + "_" + loc] = moment
 
             # compute normalized sensitivity
-            chi_square = (
+            moments_sim["chi_" + loc] = np.sqrt(
                 moments_sim["mu2_noise_" + loc] / moments_sim["mu2_signal_" + loc]
             )
-            moments_sim["chi_" + loc] = np.sqrt(chi_square)
 
         # add to aggregation
         for name_moment, moment in moments_sim.items():
-            if name_moment not in moments_all:  # initialize array
-                moments_all[name_moment] = np.empty((0, num_computations))
-            moments_all[name_moment] = np.vstack((moments_all[name_moment], moment))
+            if name_moment not in moments_all:
+                moments_all[name_moment] = []  # initialize array
+            moments_all[name_moment].append(moment)
+
+    for name_moment, moment_all in moments_all.items():
+        if isinstance(moment_all, list):
+            moments_all[name_moment] = np.stack(moment_all)
 
     # save experiment
     if name_experiment is not None:
