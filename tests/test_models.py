@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import tensorflow as tf
 
 from moments_dnns.models import init_ff_model, init_res_model, reset_model
 from tests import TEST_BATCH_SIZE, TEST_NUM_CHANNELS
@@ -25,13 +26,13 @@ def test_vanilla(orig_inputs):
         batch_norm=False,
     )
     reset_model(model)
-    outputs = model.predict(orig_inputs, batch_size=TEST_BATCH_SIZE)
+    outputs = model(orig_inputs, training=False)
     signal, noise = outputs[:2]
 
     assert len(outputs) == 9
     assert signal.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
     assert noise.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
-    assert (signal >= 0).all()
+    assert tf.reduce_all(signal >= 0).numpy()
 
 
 def test_bn_ff(orig_inputs):
@@ -46,14 +47,14 @@ def test_bn_ff(orig_inputs):
         batch_norm=True,
     )
     reset_model(model)
-    outputs = model.predict(orig_inputs, batch_size=TEST_BATCH_SIZE)
+    outputs = model(orig_inputs, training=False)
     signal, noise, log_noise = outputs[:3]
     noise *= np.sqrt(np.exp(log_noise))
 
     assert len(outputs) == 11
     assert signal.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
     assert noise.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
-    assert (noise**2).mean() > signal.var()
+    assert tf.reduce_mean(noise**2).numpy() > tf.math.reduce_variance(signal).numpy()
 
 
 def test_bn_res(orig_inputs):
@@ -68,11 +69,11 @@ def test_bn_res(orig_inputs):
         name_moments=["nu2_signal", "mu2_signal"],
     )
     reset_model(model)
-    outputs = model.predict(orig_inputs, batch_size=TEST_BATCH_SIZE)
+    outputs = model(orig_inputs, training=False)
     signal, noise, log_noise = outputs[:3]
     noise *= np.sqrt(np.exp(log_noise))
 
     assert len(outputs) == 13
     assert signal.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
     assert noise.shape == (TEST_BATCH_SIZE, 1, 1, TEST_NUM_CHANNELS)
-    assert (noise**2).mean() > signal.var()
+    assert tf.reduce_mean(noise**2).numpy() > tf.math.reduce_variance(signal).numpy()

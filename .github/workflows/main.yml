@@ -1,4 +1,4 @@
-name: test
+name: lint-and-test
 
 on: pull_request
 
@@ -25,7 +25,6 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
-      #----------------------------------------------
       # install project
       #----------------------------------------------
       - name: Install project
@@ -35,7 +34,6 @@ jobs:
       #----------------------------------------------
       - name: Lint project
         run: |
-          poetry lock --check
           poetry run bandit --recursive --quiet --skip B101 tests/
           poetry run pre-commit run --all
       #----------------------------------------------

@@ -31,14 +31,14 @@ The file `plots.py` provides function to plot the results of the experiments in 
 
 ## Notebooks
 
-Notebooks provide a easy way of familiarizing with the package. To run these notebooks, simply navigate to [notebooks/](https://github.com/alabatie/moments-dnns/blob/master/notebooks/) and launch a kernel in the poetry's env (using `poetry run jupyter lab` or `poetry run jupyter notebook`).
+Notebooks provide a easy way of familiarizing with the package. To run these notebooks, simply navigate to [notebooks/](https://github.com/alabatie/moments-dnns/blob/main/notebooks/) and launch a kernel in the poetry's env (using `poetry run jupyter lab` or `poetry run jupyter notebook`).
 
-The main notebook [Reproducing Fig. 2, 3, 4, 5.ipynb](https://github.com/alabatie/moments-dnns/blob/master/notebooks/Reproducing%20Fig.%202%2C%203%2C%204%2C%205.ipynb) shows the function calls to reproduce the results from Fig. 2, 3, 4, 5 from the paper.
+The main notebook [Reproducing Fig. 2, 3, 4, 5.ipynb](https://github.com/alabatie/moments-dnns/blob/main/notebooks/Reproducing%20Fig.%202%2C%203%2C%204%2C%205.ipynb) shows the function calls to reproduce the results from Fig. 2, 3, 4, 5 from the paper.
 
 There are two complementary notebooks:
 
-* [Complements on width, boundary conditions, dataset, epsilon.ipynb](https://github.com/alabatie/moments-dnns/blob/master/notebooks/Complements%20on%20width%2C%20boundary%20conditions%2C%20dataset%2C%20epsilon.ipynb) discusses the effect of changing the width, boundary conditions of convolutional layers, input dataset and Batch Norm fuzz factor
+* [Complements on width, boundary conditions, dataset, epsilon.ipynb](https://github.com/alabatie/moments-dnns/blob/main/notebooks/Complements%20on%20width%2C%20boundary%20conditions%2C%20dataset%2C%20epsilon.ipynb) discusses the effect of changing the width, boundary conditions of convolutional layers, input dataset and Batch Norm fuzz factor
 
-* [Complements on fully-connected networks.ipynb](https://github.com/alabatie/moments-dnns/blob/master/notebooks/Complements%20on%20fully-connected%20networks.ipynb) discusses experiments equivalent to Fig. 2, 3, 4, 5 for fully-connected networks
+* [Complements on fully-connected networks.ipynb](https://github.com/alabatie/moments-dnns/blob/main/notebooks/Complements%20on%20fully-connected%20networks.ipynb) discusses experiments equivalent to Fig. 2, 3, 4, 5 for fully-connected networks
 
 These complementary notebooks confirm the results of the paper and provide additional insights and examples of usage of the function `run_experiment()`.
