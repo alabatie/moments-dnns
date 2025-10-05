@@ -247,9 +247,9 @@ def run_experiment(
                 moments_all[name_moment] = []  # initialize array
             moments_all[name_moment].append(moment)
 
-    for name_moment in moments_all:
-        if isinstance(moments_all[name_moment], list):
-            moments_all[name_moment] = np.stack(moments_all[name_moment])
+    for name_moment, moment_all in moments_all.items():
+        if isinstance(moment_all, list):
+            moments_all[name_moment] = np.stack(moment_all)
 
     # save experiment
     if name_experiment is not None:
