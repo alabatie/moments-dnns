@@ -15,7 +15,7 @@ def merge_experiments(name_experiments: list[str], name_merged: str):
         moments: dictionary of moments of merged experiments
     """
     moments = {}
-    for iexperiment, name_experiment in enumerate(name_experiments):
+    for name_experiment in name_experiments:
         moments_experiment = load_experiment(name_experiment)
         for name_moment, moments in moments_experiment.items():
             if name_moment not in moments:
