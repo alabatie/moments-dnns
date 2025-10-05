@@ -3,7 +3,7 @@ name: lint-and-test
 on: pull_request
 
 jobs:
-  test:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
